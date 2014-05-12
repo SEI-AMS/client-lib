@@ -1,5 +1,7 @@
 package edu.cmu.sei.ams.cloudlet;
 
+import java.util.List;
+
 /**
  * User: jdroot
  * Date: 3/20/14
@@ -19,6 +21,18 @@ public interface Service
      * @return
      */
     public String getDescription();
+
+    /**
+     * Gets the version of this service (may return null)
+     * @return
+     */
+    public String getVersion();
+
+    /**
+     * Gets the tags associated with this service
+     * @return
+     */
+    public List<String> getTags();
 
     /**
      * Asks the server to start the service. Blocks until the service is started.

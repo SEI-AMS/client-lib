@@ -175,6 +175,12 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
         }
     }
 
+    @Override
+    public InetAddress getInetAddress()
+    {
+        return addr;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -226,7 +232,7 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
         if (useCache && servicesCache != null)
             return new ArrayList<Service>(servicesCache);
 
-        String result = executeCommand(new GetServicesCommand()); //CloudletCommand.GET_SERVICES.execute(this);
+        String result = executeCommand(new GetServicesCommand()); //Get the services from the server
 
         List<Service> ret = new ArrayList<Service>();
 
@@ -248,7 +254,7 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
         if (servicesCache == null)
             servicesCache = new ArrayList<Service>();
 
-        log.error("Caching " + ret.size() + " services");
+        log.info("Caching " + ret.size() + " services");
         servicesCache.clear();
         servicesCache.addAll(ret);
 

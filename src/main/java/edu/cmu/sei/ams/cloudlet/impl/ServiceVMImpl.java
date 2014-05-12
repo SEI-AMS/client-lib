@@ -20,8 +20,8 @@ public class ServiceVMImpl implements ServiceVM
 {
     private static final XLogger log = XLoggerFactory.getXLogger(ServiceVMImpl.class);
     private String instanceId;
-    private InetAddress addr;
     private int port;
+    private JSONObject json;
 
     private Service mService;
     private final CloudletCommandExecutor mCloudlet;
@@ -30,10 +30,10 @@ public class ServiceVMImpl implements ServiceVM
     {
         log.entry(mCloudlet, mService, obj);
         this.mCloudlet = mCloudlet;
-        this.instanceId = getSafeString("INSTANCE_ID", obj);
-        this.port = getSafeInt("PORT", obj);
-        this.addr = getSafeInetAddress("IP_ADDRESS", obj);
+        this.instanceId = getSafeString("_id", obj);
+        this.port = getSafeInt("port", obj);
         this.mService = mService;
+        this.json = obj;
         log.exit();
     }
 
@@ -87,7 +87,7 @@ public class ServiceVMImpl implements ServiceVM
     @Override
     public InetAddress getAddress()
     {
-        return addr;
+        return mCloudlet.getInetAddress();
     }
 
     /**
@@ -103,6 +103,6 @@ public class ServiceVMImpl implements ServiceVM
     @Override
     public String toString()
     {
-        return "{serviceId:\"" + getServiceId() + "\", instanceId:\"" + getInstanceId() + "\", ip_address:\"" + getAddress() + "\", port:" + getPort() + "}";
+        return json.toString();
     }
 }

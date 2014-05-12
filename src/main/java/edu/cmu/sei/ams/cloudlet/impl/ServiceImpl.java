@@ -9,6 +9,9 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static edu.cmu.sei.ams.cloudlet.impl.CloudletUtilities.*;
 
 /**
@@ -22,6 +25,9 @@ public class ServiceImpl implements Service
 
     private String serviceId;
     private String description;
+    private String version;
+    private JSONObject json;
+    private List<String> tags;
 
     private final CloudletCommandExecutor mCloudlet;
 
@@ -36,7 +42,10 @@ public class ServiceImpl implements Service
     {
         this.serviceId = getSafeString("_id", json);
         this.description = getSafeString("description", json);
+        this.version = getSafeString("version", json);
+        this.tags = getSafeStringArray("tags", json);
         this.mCloudlet = mCloudlet;
+        this.json = json;
     }
 
     /**
@@ -64,6 +73,29 @@ public class ServiceImpl implements Service
      * @return
      */
     @Override
+    public String getVersion()
+    {
+        return this.version;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return
+     */
+    @Override
+    public List<String> getTags()
+    {
+        List<String> ret = new ArrayList<String>(tags.size());
+        for (String tag : this.tags)
+            ret.add(tag);
+        return ret;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return
+     */
+    @Override
     public ServiceVM startService()
     {
         return startService(true);
@@ -74,7 +106,7 @@ public class ServiceImpl implements Service
     {
         ServiceVM ret = null;
         StartServiceCommand cmd = new StartServiceCommand(this);
-        cmd.setIsolated(!join);
+        cmd.setJoin(join);
         try
         {
             String jsonStr = mCloudlet.executeCommand(cmd);
@@ -122,7 +154,6 @@ public class ServiceImpl implements Service
     @Override
     public String toString()
     {
-        return "{serviceId:\"" + serviceId + "\"," +
-                "description:\"" + description + "\"}";
+        return json.toString();
     }
 }

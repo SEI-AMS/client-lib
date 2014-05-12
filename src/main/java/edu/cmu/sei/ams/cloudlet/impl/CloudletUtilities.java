@@ -1,8 +1,11 @@
 package edu.cmu.sei.ams.cloudlet.impl;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User: jdroot
@@ -89,6 +92,26 @@ public class CloudletUtilities
         {
             if (json.has(name))
                 return json.getJSONObject(name);
+        }
+        catch (Exception e)
+        {
+
+        }
+        return null;
+    }
+
+    static List<String> getSafeStringArray(String name, JSONObject json)
+    {
+        try
+        {
+            if (json.has(name))
+            {
+                JSONArray array = json.getJSONArray(name);
+                List<String> ret = new ArrayList<String>();
+                for (int x = 0; x < array.length(); x++)
+                    ret.add(array.getString(x));
+                return ret;
+            }
         }
         catch (Exception e)
         {

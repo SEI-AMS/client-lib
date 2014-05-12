@@ -18,9 +18,9 @@ public class StartServiceCommand extends CloudletCommand
         getArgs().put("serviceId", mService.getServiceId());
     }
 
-    public void setIsolated(boolean isolated)
+    public void setJoin(boolean join)
     {
-        getArgs().put("isolated", "" + isolated);
+        getArgs().put("join", "" + join);
     }
 
     @Override
