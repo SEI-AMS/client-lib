@@ -48,10 +48,8 @@ public class ServiceVMImpl implements ServiceVM
         {
             StopVMInstanceCommand cmd = new StopVMInstanceCommand(this);
             String result = mCloudlet.executeCommand(cmd);
-            if ("OK".equals(result))
-                return true;
-            else
-                return false;
+            //Result is ignored, it will be a blank json object on success
+            return true;
         }
         catch (Exception e)
         {
