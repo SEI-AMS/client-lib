@@ -2,6 +2,7 @@ import edu.cmu.sei.ams.cloudlet.Cloudlet;
 import edu.cmu.sei.ams.cloudlet.CloudletFinder;
 import edu.cmu.sei.ams.cloudlet.Service;
 import edu.cmu.sei.ams.cloudlet.ServiceVM;
+import edu.cmu.sei.ams.cloudlet.rank.CpuBasedRanker;
 import org.junit.Test;
 
 import java.util.List;
