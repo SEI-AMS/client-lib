@@ -59,4 +59,19 @@ public interface Cloudlet
      * @throws CloudletException can throw exceptions when the server is unreachable or bad data is returned
      */
     public CloudletSystemInfo getSystemInfo() throws CloudletException;
+
+    /**
+     * Gets a list of apps available for installation from this Cloudlet
+     * @return list of apps
+     * @throws CloudletException
+     */
+    public List<App> getApps() throws CloudletException;
+
+    /**
+     * Gets a list of apps available for installation from this Cloudlet
+     * @param useCache flag to specify if we should use the cached list
+     * @return list of apps
+     * @throws CloudletException
+     */
+    public List<App> getApps(boolean useCache) throws CloudletException;
 }

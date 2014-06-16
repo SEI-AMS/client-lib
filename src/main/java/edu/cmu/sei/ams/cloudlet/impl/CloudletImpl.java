@@ -2,8 +2,10 @@ package edu.cmu.sei.ams.cloudlet.impl;
 
 import edu.cmu.sei.ams.cloudlet.*;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.CloudletCommand;
+import edu.cmu.sei.ams.cloudlet.impl.cmds.GetAppListCommand;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.GetMetadataCommand;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.GetServicesCommand;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -16,11 +18,15 @@ import org.json.JSONObject;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.URI;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,6 +44,7 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
     private final int port;
 
     private List<Service> servicesCache;
+    private List<App> appsCache;
 
     public CloudletImpl(String name, InetAddress addr, int port)
     {
@@ -140,12 +147,50 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
             HttpResponse response = client.execute(request);
 
             int code = response.getStatusLine().getStatusCode();
-            String responseText = getResponseText(response);
-
             log.info("Response object: " + response.getStatusLine().getReasonPhrase());
 
+            //Fail if we didnt get a 200 OK
             if (code != 200)
+            {
+                //Get the error text
+                String responseText = getResponseText(response);
                 throw new CloudletException(response.getStatusLine() + (responseText == null ? "" : ":\n" + responseText));
+            }
+
+
+            String responseText = null;
+            //Change how we handle response based on if we are expecting a file or not
+            if (cmd.hasFile())
+            {
+                HttpEntity entity = response.getEntity();
+                if (entity != null && entity.getContentLength() > 0)
+                {
+                    final InputStream is = entity.getContent();
+                    final OutputStream os = new FileOutputStream(cmd.getFile());
+                    byte[] buffer = new byte[1024];
+                    int len = 0;
+                    //Compute the md5 sum
+                    MessageDigest md = MessageDigest.getInstance("MD5");
+                    while ((len = is.read(buffer)) > 0)
+                    {
+                        md.update(buffer, 0, len);
+                        os.write(buffer, 0, len);
+                    }
+                    os.flush();
+                    os.close();
+                    is.close();
+                    responseText = bytesToHex(md.digest());
+                }
+                else
+                {
+                    //Server didnt return a file for some reason
+                    throw new CloudletException("Server did not return a file");
+                }
+            }
+            else
+            {
+                responseText = getResponseText(response);
+            }
 
             log.exit(responseText);
             return responseText;
@@ -234,7 +279,7 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
 
         String result = executeCommand(new GetServicesCommand()); //Get the services from the server
 
-        List<Service> ret = new ArrayList<Service>();
+        List<Service> _ret = new ArrayList<Service>();
 
         try
         {
@@ -243,7 +288,7 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
             for (int x = 0; x < services.length(); x++)
             {
                 JSONObject service = services.getJSONObject(x);
-                ret.add(new ServiceImpl(this, service));
+                _ret.add(new ServiceImpl(this, service));
             }
         }
         catch (Exception e)
@@ -251,15 +296,55 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
             log.error("Error getting services array from response!", e);
         }
 
-        if (servicesCache == null)
-            servicesCache = new ArrayList<Service>();
 
-        log.info("Caching " + ret.size() + " services");
-        servicesCache.clear();
-        servicesCache.addAll(ret);
+        servicesCache = Collections.unmodifiableList(_ret);
 
-        log.exit(ret);
-        return ret;
+        log.exit(servicesCache);
+        return servicesCache;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<App> getApps() throws CloudletException
+    {
+        return getApps(true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<App> getApps(boolean useCache) throws CloudletException
+    {
+        log.entry(useCache);
+
+        if (useCache && appsCache != null)
+            return appsCache;
+
+        String result = executeCommand(new GetAppListCommand());
+        List<App> _ret = new ArrayList<App>();
+
+        try
+        {
+            JSONObject obj = new JSONObject(result);
+            JSONArray apps = obj.getJSONArray("apps");
+            for (int x = 0; x < apps.length(); x++)
+            {
+                JSONObject app = apps.getJSONObject(x);
+                _ret.add(new AppImpl(this, app));
+            }
+        }
+        catch (Exception e)
+        {
+            log.error("Error getting apps array from response!", e);
+        }
+
+        appsCache = Collections.unmodifiableList(_ret);
+
+        log.exit(appsCache);
+        return appsCache;
     }
 
     /**
@@ -310,5 +395,16 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
     public String toString()
     {
         return name + "[" + addr + ":" + port + "]";
+    }
+
+    private final static char[] hexArray = "0123456789abcdef".toCharArray();
+    private final static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
     }
 }

@@ -2,6 +2,7 @@ package edu.cmu.sei.ams.cloudlet.impl.cmds;
 
 import edu.cmu.sei.ams.cloudlet.impl.HttpMethod;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,12 @@ public abstract class CloudletCommand
 
     public boolean hasFile()
     {
-        return false;
+        return getFile() != null;
+    }
+
+    public File getFile()
+    {
+        return null;
     }
 
 }

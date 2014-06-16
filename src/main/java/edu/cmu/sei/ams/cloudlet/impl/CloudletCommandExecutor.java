@@ -1,6 +1,7 @@
 package edu.cmu.sei.ams.cloudlet.impl;
 
 import edu.cmu.sei.ams.cloudlet.CloudletException;
+import edu.cmu.sei.ams.cloudlet.impl.cmds.CloudletCommand;
 
 import java.net.InetAddress;
 
@@ -13,7 +14,7 @@ import java.net.InetAddress;
  */
 public interface CloudletCommandExecutor
 {
-    public String executeCommand(edu.cmu.sei.ams.cloudlet.impl.cmds.CloudletCommand cmd) throws CloudletException;
+    public String executeCommand(CloudletCommand cmd) throws CloudletException;
 
     public InetAddress getInetAddress();
 }

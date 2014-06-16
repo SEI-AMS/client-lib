@@ -85,10 +85,7 @@ public class ServiceImpl implements Service
     @Override
     public List<String> getTags()
     {
-        List<String> ret = new ArrayList<String>(tags.size());
-        for (String tag : this.tags)
-            ret.add(tag);
-        return ret;
+        return this.tags;
     }
 
     /**

@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -100,6 +101,12 @@ public class CloudletUtilities
         return null;
     }
 
+    /**
+     * Creates an immutable list based on a comma seperated json string
+     * @param name
+     * @param json
+     * @return
+     */
     static List<String> getSafeStringArray(String name, JSONObject json)
     {
         try
@@ -110,7 +117,7 @@ public class CloudletUtilities
                 List<String> ret = new ArrayList<String>();
                 for (int x = 0; x < array.length(); x++)
                     ret.add(array.getString(x));
-                return ret;
+                return Collections.unmodifiableList(ret);
             }
         }
         catch (Exception e)
