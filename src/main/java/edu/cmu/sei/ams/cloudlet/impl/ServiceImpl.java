@@ -40,7 +40,7 @@ public class ServiceImpl implements Service
      */
     ServiceImpl(CloudletCommandExecutor mCloudlet, JSONObject json)
     {
-        this.serviceId = getSafeString("_id", json);
+        this.serviceId = getSafeString("service_id", json);
         this.description = getSafeString("description", json);
         this.version = getSafeString("version", json);
         this.tags = getSafeStringArray("tags", json);
