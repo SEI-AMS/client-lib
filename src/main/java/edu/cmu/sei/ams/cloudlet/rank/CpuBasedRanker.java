@@ -23,7 +23,9 @@ public class CpuBasedRanker implements CloudletRanker
     public double rankCloudlet(Service service, Cloudlet cloudlet) throws CloudletException
     {
         log.entry(service, cloudlet);
+        log.info("Ranking Cloudlet: " + cloudlet.getName());
         CloudletSystemInfo info = cloudlet.getSystemInfo();
+        log.info("System info: " + info);
         double ranking = (100.0 * info.getCPUInfo().getTotalCores()) - info.getCPUInfo().getUsage();
         log.exit(ranking);
         return ranking;
