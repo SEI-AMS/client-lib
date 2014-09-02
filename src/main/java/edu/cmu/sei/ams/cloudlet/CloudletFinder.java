@@ -86,15 +86,18 @@ public class CloudletFinder
         {
             try
             {
+                log.trace("Checking cloudlet: " + c.getName());
                 List<Service> services = c.getServices();
                 for (Service s : services)
                 {
                     //Only call the ranker if this Cloudlet can offer this service
                     if (serviceId.equalsIgnoreCase(s.getServiceId()))
                     {
+                        log.trace("Cloudlet has service: " + serviceId);
                         try
                         {
                             double val = ranker.rankCloudlet(s, c);
+                            log.trace("Ranker returned: " + val);
                             if (val > max_rank)
                             {
                                 max_rank = val;
@@ -107,6 +110,10 @@ public class CloudletFinder
                         }
 
                         break; //For now, we only care about one service
+                    }
+                    else
+                    {
+                        log.trace("Cloudlet does not have service: " + serviceId);
                     }
                 }
             }
