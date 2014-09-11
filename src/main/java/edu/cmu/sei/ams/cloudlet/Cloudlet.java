@@ -74,4 +74,12 @@ public interface Cloudlet
      * @throws CloudletException
      */
     public List<App> getApps(boolean useCache) throws CloudletException;
+
+    /**
+     *
+     * @param filter Filters to apply to this request
+     * @return A list of apps matching the correct tags
+     * @throws CloudletException
+     */
+    public List<App> getApps(AppFilter filter) throws CloudletException;
 }

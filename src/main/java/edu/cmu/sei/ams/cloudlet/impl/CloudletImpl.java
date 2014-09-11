@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +45,6 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
     private final int port;
 
     private List<Service> servicesCache;
-    private List<App> appsCache;
 
     public CloudletImpl(String name, InetAddress addr, int port)
     {
@@ -112,7 +112,7 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
                 args = "?";
             else
                 args += "&";
-            args += key + "=" + cmd.getArgs().get(key);
+            args += key + "=" + URLEncoder.encode(cmd.getArgs().get(key));
         }
 
         if (args != null)
@@ -320,20 +320,30 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
     {
         log.entry(useCache);
 
-        if (useCache && appsCache != null)
-            return appsCache;
+        List<App> ret = getApps(new AppFilter());
 
-        String result = executeCommand(new GetAppListCommand());
-        List<App> _ret = new ArrayList<App>();
+        log.exit(ret);
+        return ret;
+    }
 
-        try
-        {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<App> getApps(AppFilter filter) throws CloudletException
+    {
+        log.entry(filter);
+        List<App> ret = new ArrayList<App>();
+
+        String result = executeCommand(new GetAppListCommand(filter));
+
+        try {
             JSONObject obj = new JSONObject(result);
             JSONArray apps = obj.getJSONArray("apps");
             for (int x = 0; x < apps.length(); x++)
             {
                 JSONObject app = apps.getJSONObject(x);
-                _ret.add(new AppImpl(this, app));
+                ret.add(new AppImpl(this, app));
             }
         }
         catch (Exception e)
@@ -341,10 +351,8 @@ public class CloudletImpl implements Cloudlet, CloudletCommandExecutor
             log.error("Error getting apps array from response!", e);
         }
 
-        appsCache = Collections.unmodifiableList(_ret);
-
-        log.exit(appsCache);
-        return appsCache;
+        log.exit(ret);
+        return ret;
     }
 
     /**
