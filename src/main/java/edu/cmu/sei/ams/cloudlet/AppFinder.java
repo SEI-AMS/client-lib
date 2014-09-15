@@ -27,7 +27,7 @@ public class AppFinder
      * @param filter Filter's the apps that will be returned
      * @return
      */
-    public static List<App> findAppsByTag(AppFilter filter)
+    public static List<App> findApps(AppFilter filter)
     {
         log.entry(filter);
         List<App> ret = new ArrayList<App>();
