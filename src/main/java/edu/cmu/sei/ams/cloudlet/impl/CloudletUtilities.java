@@ -124,6 +124,6 @@ public class CloudletUtilities
         {
 
         }
-        return null;
+        return new ArrayList<String>();
     }
 }
