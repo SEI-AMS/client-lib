@@ -168,7 +168,7 @@ public class AppImpl implements App
             String md5 = mExecutor.executeCommand(cmd);
 
             //If we dont have an MD5 sum, let it through
-            if (this.getMD5Sum() == null || this.getMD5Sum().trim().length() == 0)
+            if (this.getMD5Sum() == null)
                 ret = outFile;
                 //If the md5 sum matches, let it through
             else if (md5 != null && md5.equalsIgnoreCase(this.getMD5Sum()))

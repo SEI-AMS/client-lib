@@ -21,7 +21,13 @@ public class CloudletUtilities
         try
         {
             if (json.has(name))
-                return json.getString(name);
+            {
+                // We do a null check here because the server will return "null" instead of null
+                String val = json.getString(name);
+                if (val != null && val.equalsIgnoreCase("null"))
+                    val = null;
+                return val;
+            }
         }
         catch (Exception e)
         {

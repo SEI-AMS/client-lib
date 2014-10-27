@@ -5,7 +5,7 @@ apply plugin: 'maven'
 sourceCompatibility = 1.6
 
 group = 'edu.cmu.sei.ams.cloudlet'
-version = '1.13'
+version = '1.13.1'
 
 repositories {
     mavenLocal()
@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     compile (
-            'javax.jmdns:jmdns:3.4.0',
+            'javax.jmdns:jmdns:3.4.1',
             'org.slf4j:slf4j-api:1.7.6',
             'org.slf4j:slf4j-ext:1.7.6',
             'org.apache.httpcomponents:httpclient:4.3.3',
