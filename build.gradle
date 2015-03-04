@@ -5,12 +5,12 @@ apply plugin: 'maven'
 sourceCompatibility = 1.6
 
 group = 'edu.cmu.sei.ams.cloudlet'
-version = '1.13.1'
+version = '1.13.2'
 
 repositories {
     mavenLocal()
     maven {
-        url 'http://aurora/artifactory/release'
+        url 'http://m2.ssdlab.sei.cmu.edu/release'
     }
     mavenCentral()
 }

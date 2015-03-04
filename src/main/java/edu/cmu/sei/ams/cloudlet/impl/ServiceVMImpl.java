@@ -20,7 +20,7 @@ public class ServiceVMImpl implements ServiceVM
 {
     private static final XLogger log = XLoggerFactory.getXLogger(ServiceVMImpl.class);
     private String instanceId;
-    private String addr;
+    private InetAddress address;
     private int port;
     private JSONObject json;
 
@@ -32,7 +32,7 @@ public class ServiceVMImpl implements ServiceVM
         log.entry(mCloudlet, mService, obj);
         this.mCloudlet = mCloudlet;
         this.instanceId = getSafeString("_id", obj);
-        this.addr = getSafeString("ip_address", obj);
+        this.address = getSafeInetAddress("ip_address", obj);
         this.port = getSafeInt("port", obj);
         this.mService = mService;
         this.json = obj;
@@ -87,15 +87,7 @@ public class ServiceVMImpl implements ServiceVM
     @Override
     public InetAddress getAddress()
     {
-        try
-        {
-            return InetAddress.getByName(this.addr);
-        }
-        catch(java.net.UnknownHostException e)
-        {
-            // TODO: Not sure what to do at this level...
-            return null;
-        }
+        return address;
     }
 
     /**
