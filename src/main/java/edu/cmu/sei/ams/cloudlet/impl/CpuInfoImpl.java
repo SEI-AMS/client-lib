@@ -15,10 +15,15 @@ public class CpuInfoImpl implements CpuInfo
     private final int totalCores;
     private final double usage;
 
+    private final double speed;
+    private final int cache;
+
     CpuInfoImpl(JSONObject obj)
     {
         totalCores = getSafeInt("max_cores", obj);
         usage = getSafeDouble("usage", obj);
+        speed = getSafeDouble("speed", obj);
+        cache = getSafeInt("cache", obj);
     }
 
     /**
@@ -37,8 +42,22 @@ public class CpuInfoImpl implements CpuInfo
     }
 
     @Override
+    public double getSpeed()
+    {
+        return speed;
+    }
+
+    @Override
+    public int getCache()
+    {
+        return cache;
+    }
+
+
+    @Override
     public String toString()
     {
-        return "{max_cores:" + getTotalCores() + ",usage:" + getUsage() + "}";
+        return "{max_cores:" + getTotalCores() + ",usage:" + getUsage()  +
+                ",speed:" + getSpeed()  + ",cache:" + getCache() + "}";
     }
 }
