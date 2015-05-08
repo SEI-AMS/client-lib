@@ -74,7 +74,7 @@ uploadArchives {
 
         licenses {
           license {
-            name 'Pycloud projects license'
+            name 'KD-Cloudlet license'
             url 'https://github.com/SEI-AMS/client-lib/blob/master/LICENSE'
           }
         }
