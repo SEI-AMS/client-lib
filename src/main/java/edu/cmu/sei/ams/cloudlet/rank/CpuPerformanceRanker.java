@@ -55,8 +55,7 @@ public class CpuPerformanceRanker implements CloudletRanker
         log.entry(service, cloudlet);
         CpuInfo cpuInfo = cloudlet.getSystemInfo().getCPUInfo();
 
-        double ranking = ((100.0 * cpuInfo.getTotalCores()) - cpuInfo.getUsage()) * cpuInfo.getSpeed();
-
+        double ranking = ((100.0 * cpuInfo.getTotalCores()) - cpuInfo.getUsage()) * cpuInfo.getSpeed() / 100.0;
         log.exit(ranking);
         return ranking;
     }

@@ -124,6 +124,7 @@ public class CloudletFinder
                         try
                         {
                             double val = ranker.rankCloudlet(s, c);
+                            log.info("Ranking for " + c.getName() + ": " + val);
                             if (val > max_rank)
                             {
                                 max_rank = val;
