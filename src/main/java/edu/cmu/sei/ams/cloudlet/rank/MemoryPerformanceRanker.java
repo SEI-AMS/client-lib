@@ -53,9 +53,9 @@ public class MemoryPerformanceRanker  implements CloudletRanker
         CpuInfo cpuInfo = cloudlet.getSystemInfo().getCPUInfo();
         MemoryInfo memInfo = cloudlet.getSystemInfo().getMemoryInfo();
 
-        double cacheWeight = 1;
-        double ramWeight = 1;
-        double ranking = cacheWeight * (cpuInfo.getCache() * cpuInfo.getTotalCores()) +
+        double cacheWeight = 0;
+        double ramWeight = 1.0/1024.0/1024.0;
+        double ranking = cacheWeight * (cpuInfo.getCache() * (double)(cpuInfo.getTotalCores())) +
                 ramWeight * memInfo.getFreeMemory();
 
         log.exit(ranking);
