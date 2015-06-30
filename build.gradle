@@ -9,6 +9,10 @@ group = 'edu.cmu.sei.ams.cloudlet'
 def groupId = group
 version = '1.13.3'
 
+wrapper {
+    gradleVersion = '2.3'
+}
+
 repositories {
     mavenLocal()
     mavenCentral()
