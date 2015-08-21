@@ -29,6 +29,7 @@ http://jquery.org/license
 */
 package edu.cmu.sei.ams.cloudlet.impl;
 
+import edu.cmu.sei.ams.cloudlet.Cloudlet;
 import edu.cmu.sei.ams.cloudlet.CloudletException;
 import edu.cmu.sei.ams.cloudlet.Service;
 import edu.cmu.sei.ams.cloudlet.ServiceVM;
@@ -38,7 +39,6 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static edu.cmu.sei.ams.cloudlet.impl.CloudletUtilities.*;
@@ -58,22 +58,24 @@ public class ServiceImpl implements Service
     private JSONObject json;
     private List<String> tags;
 
-    private final CloudletCommandExecutor mCloudlet;
+    private final CloudletCommandExecutor commandExecutor;
+    private final Cloudlet cloudlet;
 
     private ServiceVM serviceVM;
 
     /**
      * Creates an instance a service based on a specific cloudlet
-     * @param mCloudlet The cloudlet this service lives on
+     * @param commandExecutor The cloudlet this service lives on
      * @param json The json data describing this service
      */
-    ServiceImpl(CloudletCommandExecutor mCloudlet, JSONObject json)
+    ServiceImpl(CloudletCommandExecutor commandExecutor, Cloudlet cloudlet, JSONObject json)
     {
         this.serviceId = getSafeString("service_id", json);
         this.description = getSafeString("description", json);
         this.version = getSafeString("version", json);
         this.tags = getSafeStringArray("tags", json);
-        this.mCloudlet = mCloudlet;
+        this.commandExecutor = commandExecutor;
+        this.cloudlet = cloudlet;
         this.json = json;
     }
 
@@ -135,9 +137,9 @@ public class ServiceImpl implements Service
         cmd.setJoin(join);
         try
         {
-            String jsonStr = mCloudlet.executeCommand(cmd);
+            String jsonStr = commandExecutor.executeCommand(cmd, cloudlet.getAddress().getHostAddress(), cloudlet.getPort());
             JSONObject obj = new JSONObject(jsonStr);
-            ret = new ServiceVMImpl(mCloudlet, this, obj);
+            ret = new ServiceVMImpl(this.commandExecutor, this.cloudlet, this, obj);
             this.serviceVM = ret;
         }
         catch (CloudletException e)

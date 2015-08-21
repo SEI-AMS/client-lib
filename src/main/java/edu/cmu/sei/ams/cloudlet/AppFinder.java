@@ -43,12 +43,12 @@ import java.util.List;
 public class AppFinder
 {
     private static final XLogger log = XLoggerFactory.getXLogger(AppFinder.class);
-    /**
-     * Private constructor to make sure this class is entirely static
-     */
-    private AppFinder()
-    {
 
+    private final CloudletFinder cloudletFinder;
+
+    public AppFinder(CloudletFinder cloudletFinder)
+    {
+        this.cloudletFinder = cloudletFinder;
     }
 
     /**
@@ -56,11 +56,11 @@ public class AppFinder
      * @param filter Filter's the apps that will be returned
      * @return
      */
-    public static List<App> findApps(AppFilter filter)
+    public List<App> findApps(AppFilter filter)
     {
         log.entry(filter);
         List<App> ret = new ArrayList<App>();
-        for (Cloudlet cloudlet: CloudletFinder.findCloudlets())
+        for (Cloudlet cloudlet: this.cloudletFinder.findCloudlets())
         {
             try
             {
@@ -78,7 +78,7 @@ public class AppFinder
         return ret;
     }
 
-    private static boolean contains(List<App> apps, App app)
+    private boolean contains(List<App> apps, App app)
     {
         for (App a : apps)
             if (a.getName().equals(app.getName()))

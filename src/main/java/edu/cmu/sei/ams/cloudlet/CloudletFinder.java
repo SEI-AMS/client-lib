@@ -29,7 +29,10 @@ http://jquery.org/license
 */
 package edu.cmu.sei.ams.cloudlet;
 
+import edu.cmu.sei.ams.cloudlet.impl.CloudletCommandExecutor;
+import edu.cmu.sei.ams.cloudlet.impl.CloudletCommandExecutorImpl;
 import edu.cmu.sei.ams.cloudlet.impl.CloudletImpl;
+import edu.cmu.sei.ams.cloudlet.impl.cmds.CloudletCommand;
 import edu.cmu.sei.ams.cloudlet.rank.CloudletRanker;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -55,11 +58,18 @@ public class CloudletFinder
 {
     private static final XLogger log = XLoggerFactory.getXLogger(CloudletFinder.class);
 
+    private final CloudletCommandExecutor commandExecutor = new CloudletCommandExecutorImpl();
+
+    public void enableEncryption(String deviceId, String password)
+    {
+        commandExecutor.enableEncryption(deviceId, password);
+    }
+
     /**
      * findCloudlets will locate all Cloudlets on the current network and return them, unfiltered.
      * @return
      */
-    public static List<Cloudlet> findCloudlets()
+    public List<Cloudlet> findCloudlets()
     {
         log.entry();
         List<Cloudlet> ret = new ArrayList<Cloudlet>();
@@ -75,7 +85,10 @@ public class CloudletFinder
                 String name = i.getName();
                 InetAddress addr = i.getInetAddresses()[0];
                 int port = i.getPort();
-                ret.add(new CloudletImpl(name, addr, port));
+
+                CloudletImpl cloudlet = new CloudletImpl(name, addr, port, this.commandExecutor);
+
+                ret.add(cloudlet);
             }
         }
         catch (UnknownHostException e)
@@ -97,7 +110,7 @@ public class CloudletFinder
      * @param ranker
      * @return
      */
-    public static Cloudlet findCloudletForService(String serviceId, CloudletRanker ranker)
+    public Cloudlet findCloudletForService(String serviceId, CloudletRanker ranker)
     {
         log.entry();
         if (ranker == null)
@@ -151,10 +164,10 @@ public class CloudletFinder
     }
 
     /**
-     * Will locate all nearby services for a Cloudlet.
+     * Will list services available on all nearby Cloudlets.
      * @return List of Service Ids
      */
-    public static List<String> findAllNearbyServices()
+    public List<String> findAllNearbyServices()
     {
         log.entry();
         List<Cloudlet> cloudlets = findCloudlets();

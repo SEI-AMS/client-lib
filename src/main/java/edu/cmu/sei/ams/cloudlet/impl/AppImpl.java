@@ -30,6 +30,7 @@ http://jquery.org/license
 package edu.cmu.sei.ams.cloudlet.impl;
 
 import edu.cmu.sei.ams.cloudlet.App;
+import edu.cmu.sei.ams.cloudlet.Cloudlet;
 import edu.cmu.sei.ams.cloudlet.CloudletException;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.GetAppCommand;
 import org.json.JSONObject;
@@ -50,6 +51,7 @@ public class AppImpl implements App
 {
     private static final XLogger log = XLoggerFactory.getXLogger(AppImpl.class);
     private final CloudletCommandExecutor mExecutor;
+    private final Cloudlet cloudlet;
     private final JSONObject json;
 
     private final String id;
@@ -62,9 +64,10 @@ public class AppImpl implements App
     private final String serviceId;
     private final String description;
 
-    AppImpl(CloudletCommandExecutor mExecutor, JSONObject json)
+    AppImpl(CloudletCommandExecutor mExecutor, Cloudlet cloudlet, JSONObject json)
     {
         this.mExecutor = mExecutor;
+        this.cloudlet = cloudlet;
         this.json = json;
 
         this.id = getSafeString("_id", json);
@@ -194,7 +197,7 @@ public class AppImpl implements App
         {
             GetAppCommand cmd = new GetAppCommand(this.getId(), outFile);
             //Response will contain the MD5 sum for validation
-            String md5 = mExecutor.executeCommand(cmd);
+            String md5 = mExecutor.executeCommand(cmd, cloudlet.getAddress().getHostAddress(), cloudlet.getPort());
 
             //If we dont have an MD5 sum, let it through
             if (this.getMD5Sum() == null)

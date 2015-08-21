@@ -29,6 +29,7 @@ http://jquery.org/license
 */
 package edu.cmu.sei.ams.cloudlet.impl;
 
+import edu.cmu.sei.ams.cloudlet.Cloudlet;
 import edu.cmu.sei.ams.cloudlet.Service;
 import edu.cmu.sei.ams.cloudlet.ServiceVM;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.StopVMInstanceCommand;
@@ -54,12 +55,14 @@ public class ServiceVMImpl implements ServiceVM
     private JSONObject json;
 
     private Service mService;
-    private final CloudletCommandExecutor mCloudlet;
+    private final CloudletCommandExecutor commandExecutor;
+    private final Cloudlet cloudlet;
 
-    ServiceVMImpl(CloudletCommandExecutor mCloudlet, Service mService, JSONObject obj)
+    ServiceVMImpl(CloudletCommandExecutor commandExecutor, Cloudlet cloudlet, Service mService, JSONObject obj)
     {
-        log.entry(mCloudlet, mService, obj);
-        this.mCloudlet = mCloudlet;
+        log.entry(commandExecutor, mService, obj);
+        this.commandExecutor = commandExecutor;
+        this.cloudlet = cloudlet;
         this.instanceId = getSafeString("_id", obj);
         this.address = getSafeInetAddress("ip_address", obj);
         this.port = getSafeInt("port", obj);
@@ -78,7 +81,7 @@ public class ServiceVMImpl implements ServiceVM
         try
         {
             StopVMInstanceCommand cmd = new StopVMInstanceCommand(this);
-            String result = mCloudlet.executeCommand(cmd);
+            String result = commandExecutor.executeCommand(cmd, this.cloudlet.getAddress().getHostAddress(), this.cloudlet.getPort());
             //Result is ignored, it will be a blank json object on success
             return true;
         }

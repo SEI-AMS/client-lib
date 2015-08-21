@@ -1,5 +1,5 @@
 /*
-KVM-based Discoverable Cloudlet (KD-Cloudlet) 
+KVM-based Discoverable Cloudlet (KD-Cloudlet)
 Copyright (c) 2015 Carnegie Mellon University.
 All Rights Reserved.
 
@@ -10,7 +10,7 @@ DM-0002138
 
 KD-Cloudlet includes and/or makes use of the following Third-Party Software subject to their own licenses:
 MiniMongo
-Copyright (c) 2010-2014, Steve Lacy 
+Copyright (c) 2010-2014, Steve Lacy
 All rights reserved. Released under BSD license.
 https://github.com/MiniMongo/minimongo/blob/master/LICENSE
 
@@ -29,29 +29,18 @@ http://jquery.org/license
 */
 package edu.cmu.sei.ams.cloudlet.impl;
 
-import edu.cmu.sei.ams.cloudlet.Cloudlet;
-import edu.cmu.sei.ams.cloudlet.CloudletException;
-import edu.cmu.sei.ams.cloudlet.impl.cmds.CloudletCommand;
-
 /**
- * User: jdroot
- * Date: 3/24/14
- * Time: 3:18 PM
- * Internal interface for an object that is able to execute Cloudlet commands.
+ * Created by Sebastian on 2015-08-14.
  */
-public interface CloudletCommandExecutor
+public class EncryptionException extends Exception
 {
-    String executeCommand(CloudletCommand cmd, String ipAddress, int port) throws CloudletException;
+    public EncryptionException(String message)
+    {
+        super(message);
+    }
 
-    /**
-     * Enables encrypted communication.
-     * @param deviceId The id used o identify the device in encrypted connections.
-     * @param password The password to use when encrypting and decrypting.
-     */
-    void enableEncryption(String deviceId, String password);
-
-    /**
-     * Disables encrypted communication (it is disabled by default).
-     */
-    void disableEncryption();
+    public EncryptionException(String message, Throwable cause)
+    {
+        super(message, cause);
+    }
 }
