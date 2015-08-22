@@ -83,11 +83,11 @@ public class AESEncrypter {
             byte[] iv = b;
 
             // TODO: change to CBC method with padding.
-            Cipher cipher = Cipher.getInstance("AES/CFB");
+            Cipher cipher = Cipher.getInstance("AES/CFB/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, this.skeySpec, new IvParameterSpec(iv));
 
             byte[] encrypted = cipher.doFinal(clear.getBytes());
-            String encryptedString = Base64.encodeBase64String(ivCipherConcat(iv, encrypted));
+            String encryptedString = new String(Base64.encodeBase64(ivCipherConcat(iv, encrypted)));
             return encryptedString;
         }
         catch(Exception e)
@@ -98,7 +98,7 @@ public class AESEncrypter {
 
     public String decrypt(String encrypted) throws EncryptionException {
         try {
-            byte[] cryptedBytes = Base64.decodeBase64(encrypted);
+            byte[] cryptedBytes = Base64.decodeBase64(encrypted.getBytes());
 
             byte[] iv = new byte[16];
             System.arraycopy(cryptedBytes, 0, iv, 0, 16);
@@ -106,7 +106,7 @@ public class AESEncrypter {
             System.arraycopy(cryptedBytes, 16, crypted, 0, crypted.length);
 
             // TODO: change to CBC method with padding.
-            Cipher cipher = Cipher.getInstance("AES/CFB");
+            Cipher cipher = Cipher.getInstance("AES/CFB/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, this.skeySpec, new IvParameterSpec(iv));
 
             byte[] decrypted = cipher.doFinal(crypted);

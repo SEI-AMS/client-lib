@@ -206,7 +206,7 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
             if (code != 200)
             {
                 //Get the error text
-                String responseText = getResponseText(response);
+                String responseText = getResponseText(response, false);
                 throw new CloudletException(response.getStatusLine() + (responseText == null ? "" : ":\n" + responseText));
             }
 
@@ -241,7 +241,7 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
             }
             else
             {
-                responseText = getResponseText(response);
+                responseText = getResponseText(response, true);
             }
 
             log.exit(responseText);
@@ -278,7 +278,7 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
      * @return The text in the response as a string.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private String getResponseText(final HttpResponse response)
+    private String getResponseText(final HttpResponse response, boolean decryptResponse)
     {
         String responseText = "";
 
@@ -305,7 +305,7 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
                 responseText = new String(resByteBuf);
 
                 // Decrypt if needed.
-                if(this.encryptionEnabled)
+                if(this.encryptionEnabled && decryptResponse)
                 {
                     responseText = this.encrypter.decrypt(responseText);
                 }
