@@ -293,6 +293,11 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
             final InputStream responseContentInputStream = response.getEntity().getContent();
             if (responseContentInputStream != null)
             {
+                Header[] headers = response.getAllHeaders();
+                for (Header header : headers) {
+                    System.out.println(header.toString());
+                }
+
                 // Load the response from the input stream into a byte buffer.
                 int size = (int) response.getEntity().getContentLength();
                 if (size <= 0)
@@ -300,6 +305,8 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
                 byte[] resByteBuf = new byte[size];
                 responseContentInputStream.read(resByteBuf);
                 responseContentInputStream.close();
+
+                log.info("Response size: " + size);
 
                 // Turn the buffer into a string, which should be straightforward since HTTP uses strings to communicate.
                 responseText = new String(resByteBuf);
