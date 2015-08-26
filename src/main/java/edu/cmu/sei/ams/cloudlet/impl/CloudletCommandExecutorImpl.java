@@ -44,6 +44,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +55,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import edu.cmu.sei.ams.cloudlet.CloudletException;
@@ -160,7 +163,7 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
         }
 
         // Encrypt the command string.
-        String encryptedCommandString = this.encrypter.encrypt(postCommandString);
+        String encryptedCommandString = this.encrypter.encryptFromString(postCommandString);
 
         // Add the encrypted command and the device id.
         ArrayList<NameValuePair> postParameters = new ArrayList<NameValuePair>();
@@ -211,36 +214,14 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
             }
 
             String responseText = null;
-            //Change how we handle response based on if we are expecting a file or not
+            // Change how we handle response based on if whether we are expecting a file or not
             if (cmd.hasFile())
             {
-                HttpEntity entity = response.getEntity();
-                if (entity != null && entity.getContentLength() > 0)
-                {
-                    final InputStream is = entity.getContent();
-                    final OutputStream os = new FileOutputStream(cmd.getFile());
-                    byte[] buffer = new byte[1024];
-                    int len = 0;
-                    //Compute the md5 sum
-                    MessageDigest md = MessageDigest.getInstance("MD5");
-                    while ((len = is.read(buffer)) > 0)
-                    {
-                        md.update(buffer, 0, len);
-                        os.write(buffer, 0, len);
-                    }
-                    os.flush();
-                    os.close();
-                    is.close();
-                    responseText = bytesToHex(md.digest());
-                }
-                else
-                {
-                    //Server didnt return a file for some reason
-                    throw new CloudletException("Server did not return a file");
-                }
+                responseText = getResponseFile(response, true, cmd.getFile());
             }
             else
             {
+                // Regular case, response is not a file but just text.
                 responseText = getResponseText(response, true);
             }
 
@@ -273,6 +254,78 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
     }
 
     /**
+     * Gets a file from the response and stores it into a file. Returns the MD5 hash of the file.
+     * @param response
+     * @param decryptResponse
+     * @return
+     */
+    private String getResponseFile(final HttpResponse response, boolean decryptResponse, File outputFile) throws CloudletException
+    {
+        String responseText = "";
+        if (response == null)
+        {
+            return responseText;
+        }
+
+        try {
+
+            HttpEntity entity = response.getEntity();
+            if (entity != null && entity.getContentLength() > 0)
+            {
+                // To compute the md5 hash.
+                MessageDigest md = MessageDigest.getInstance("MD5");
+
+                final InputStream is = entity.getContent();
+                final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+                // Get data and store it into a byte array output stream.
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = is.read(buffer)) > 0)
+                {
+                    md.update(buffer, 0, len);
+                    bos.write(buffer, 0, len);
+                }
+                bos.flush();
+                bos.close();
+                is.close();
+
+                // Decrypt if needed.
+                byte[] fileData = bos.toByteArray();
+                if(this.encryptionEnabled && decryptResponse)
+                {
+                    fileData = this.encrypter.decrypt(new String(bos.toByteArray()));
+                }
+
+                // Move from the byte array into the output file.
+                final OutputStream os = new FileOutputStream(outputFile);
+                os.write(fileData, 0, fileData.length);
+                os.flush();
+                os.close();
+
+                responseText = bytesToHex(md.digest());
+            }
+            else
+            {
+                //Server didn't return a file for some reason, even though we were expecting one.
+                throw new CloudletException("Server did not return a file");
+            }
+        }
+        catch (IOException e) {
+            log.error("IO Exception in the response!", e);
+        }
+        catch (NoSuchAlgorithmException e) {
+            log.error("NoSuchAlgorithmException Exception in the response!", e);
+        }
+        catch (EncryptionException e)
+        {
+            log.error("EncryptionException in the response!", e);
+        }
+
+        return responseText;
+    }
+
+    /**
      * Gets the response text from an HTTP response as String.
      * @param response The HTTP response to get the text from.
      * @return The text in the response as a string.
@@ -293,11 +346,6 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
             final InputStream responseContentInputStream = response.getEntity().getContent();
             if (responseContentInputStream != null)
             {
-                Header[] headers = response.getAllHeaders();
-                for (Header header : headers) {
-                    System.out.println(header.toString());
-                }
-
                 // Load the response from the input stream into a byte buffer.
                 int size = (int) response.getEntity().getContentLength();
                 if (size <= 0)
@@ -314,7 +362,7 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
                 // Decrypt if needed.
                 if(this.encryptionEnabled && decryptResponse)
                 {
-                    responseText = this.encrypter.decrypt(responseText);
+                    responseText = this.encrypter.decryptToString(responseText);
                 }
             }
         }

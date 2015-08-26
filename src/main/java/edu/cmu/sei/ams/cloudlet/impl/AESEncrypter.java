@@ -78,21 +78,31 @@ public class AESEncrypter {
      * @return An encrypted string.
      * @throws EncryptionException
      */
-    public String encrypt(String clear) throws EncryptionException {
+    public String encryptFromString(String clear) throws EncryptionException {
+        return encrypt(clear.getBytes());
+    }
+
+    /**
+     * Encrypts data and returns the encrypted string.
+     * @param clear A byte array to encrypt.
+     * @return An encrypted string.
+     * @throws EncryptionException
+     */
+    public String encrypt(byte[] clear) throws EncryptionException {
         try
         {
             SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
             byte[] b = new byte[16];
             random.nextBytes(b);
             byte[] iv = b;
-            log.info("IV: " + String.valueOf(Hex.encodeHex(iv)));
+            //log.info("IV: " + String.valueOf(Hex.encodeHex(iv)));
 
             // TODO: change to CBC method with padding.
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, this.skeySpec, new IvParameterSpec(iv));
 
-            byte[] encrypted = cipher.doFinal(clear.getBytes());
-            log.info("Cipher Text: " + String.valueOf(Hex.encodeHex(encrypted)));
+            byte[] encrypted = cipher.doFinal(clear);
+            //log.info("Cipher Text: " + String.valueOf(Hex.encodeHex(encrypted)));
             String encryptedString = new String(Base64.encodeBase64(ivCipherConcat(iv, encrypted)));
             return encryptedString;
         }
@@ -102,25 +112,31 @@ public class AESEncrypter {
         }
     }
 
-    public String decrypt(String encrypted) throws EncryptionException {
+    public String decryptToString(String encrypted) throws EncryptionException {
+        byte[] decrypted = decrypt(encrypted);
+        String decryptedString = new String(decrypted);
+        return decryptedString;
+    }
+
+    public byte[] decrypt(String encrypted) throws EncryptionException {
         try {
-            log.info("Encrypted string: " + encrypted);
+            //log.info("Encrypted string: " + encrypted);
             byte[] cryptedBytes = Base64.decodeBase64(encrypted.getBytes());
 
             byte[] iv = new byte[16];
             System.arraycopy(cryptedBytes, 0, iv, 0, 16);
-            log.info("IV: " + String.valueOf(Hex.encodeHex(iv)));
+            //log.info("IV: " + String.valueOf(Hex.encodeHex(iv)));
             byte[] crypted = new byte[cryptedBytes.length - 16];
             System.arraycopy(cryptedBytes, 16, crypted, 0, crypted.length);
-            log.info("Cipher Text: " + String.valueOf(Hex.encodeHex(crypted)));
+            //log.info("Cipher Text: " + String.valueOf(Hex.encodeHex(crypted)));
 
             // TODO: change to CBC method with padding.
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, this.skeySpec, new IvParameterSpec(iv));
 
             byte[] decrypted = cipher.doFinal(crypted);
-            String decryptedString = new String(decrypted);
-            return decryptedString;
+            log.info("Data decrypted.");
+            return decrypted;
         }
         catch(Exception e)
         {
