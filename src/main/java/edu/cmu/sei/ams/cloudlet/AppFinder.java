@@ -56,23 +56,14 @@ public class AppFinder
      * @param filter Filter's the apps that will be returned
      * @return
      */
-    public List<App> findApps(AppFilter filter)
-    {
+    public List<App> findApps(AppFilter filter) throws CloudletException {
         log.entry(filter);
         List<App> ret = new ArrayList<App>();
         for (Cloudlet cloudlet: this.cloudletFinder.findCloudlets())
         {
-            try
-            {
-                for (App app : cloudlet.getApps(filter))
-                    if (!contains(ret, app))
-                        ret.add(app);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-
+            for (App app : cloudlet.getApps(filter))
+                if (!contains(ret, app))
+                    ret.add(app);
         }
         log.exit(ret);
         return ret;

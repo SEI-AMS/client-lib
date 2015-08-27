@@ -210,7 +210,7 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
             {
                 //Get the error text
                 String responseText = getResponseText(response, false);
-                throw new CloudletException(response.getStatusLine() + (responseText == null ? "" : ":\n" + responseText));
+                throw new CloudletException(response.getStatusLine() + (responseText == null ? "" : ": " + responseText));
             }
 
             String responseText = null;
