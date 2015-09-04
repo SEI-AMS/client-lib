@@ -202,14 +202,21 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
             client = new DefaultHttpClient();
             HttpResponse response = client.execute(request);
 
+            boolean decryptResponse = true;
             int code = response.getStatusLine().getStatusCode();
-            log.info("Response object: " + response.getStatusLine().getReasonPhrase());
+            log.info("Response object: " + code + " - " + response.getStatusLine().getReasonPhrase());
 
             // Fail if we didn't get a 200 OK
             if (code != 200)
             {
+                //if(code == 401)
+                //{
+                    // These type of errors can't be encrypted, since they are generated when the device is not paired.
+                decryptResponse = false;
+                //}
+
                 //Get the error text
-                String responseText = getResponseText(response, false);
+                String responseText = getResponseText(response, decryptResponse);
                 throw new CloudletException(response.getStatusLine() + (responseText == null ? "" : ": " + responseText));
             }
 

@@ -34,6 +34,8 @@ import edu.cmu.sei.ams.cloudlet.CloudletException;
 import edu.cmu.sei.ams.cloudlet.Service;
 import edu.cmu.sei.ams.cloudlet.ServiceVM;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.StartServiceCommand;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
@@ -135,9 +137,10 @@ public class ServiceImpl implements Service
         ServiceVM ret = null;
         StartServiceCommand cmd = new StartServiceCommand(this);
         cmd.setJoin(join);
+        String jsonStr = "";
         try
         {
-            String jsonStr = commandExecutor.executeCommand(cmd, cloudlet.getAddress().getHostAddress(), cloudlet.getPort());
+            jsonStr = commandExecutor.executeCommand(cmd, cloudlet.getAddress().getHostAddress(), cloudlet.getPort());
             JSONObject obj = new JSONObject(jsonStr);
             ret = new ServiceVMImpl(this.commandExecutor, this.cloudlet, this, obj);
             this.serviceVM = ret;
@@ -145,6 +148,11 @@ public class ServiceImpl implements Service
         catch (CloudletException e)
         {
             log.error("Error starting service", e);
+        }
+        catch (JSONException e)
+        {
+            log.error("Error parsing reply: " + jsonStr + ";", e);
+            e.printStackTrace();
         }
         return ret;
     }
