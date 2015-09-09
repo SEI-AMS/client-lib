@@ -180,33 +180,40 @@ public class AppImpl implements App
     public File downloadApp(File outputDirectory) throws CloudletException
     {
         log.entry(outputDirectory);
-        //Verify the directory before we use it, default to java.io.tmpdir
+        File ret = null;
+
+        // Verify the directory before we use it, default to java.io.tmpdir.
         File _outDirectory = outputDirectory;
         if (outputDirectory == null || !outputDirectory.exists())
             _outDirectory = new File(System.getProperty("java.io.tmpdir"));
 
         File outFile = new File(_outDirectory, this.getName() + ".apk");
-
-        File ret = null;
-
         // If the file already exists, we will return it
         if (outFile.exists())
         {
+            log.debug("Not downloading APK file since file already exists locally.");
             ret = outFile;
         } else
         {
+            log.debug("Downloading APK file.");
             GetAppCommand cmd = new GetAppCommand(this.getId(), outFile);
-            //Response will contain the MD5 sum for validation
+
+            // Response will contain the MD5 sum for validation.
             String md5 = mExecutor.executeCommand(cmd, cloudlet.getAddress().getHostAddress(), cloudlet.getPort());
 
-            //If we dont have an MD5 sum, let it through
             if (this.getMD5Sum() == null)
+            {
+                //If we dont have an MD5 sum, let it through
                 ret = outFile;
-                //If the md5 sum matches, let it through
+            }
             else if (md5 != null && md5.equalsIgnoreCase(this.getMD5Sum()))
+            {
+                //If the md5 sum matches, let it through
                 ret = outFile;
+            }
             else
             {
+                log.error("MD5 mismatch.");
                 CloudletException e = new CloudletException(
                         String.format("MD5 mismatch. Expecting '%s' but got '%s'", this.getMD5Sum(), md5)
                 );
@@ -214,9 +221,9 @@ public class AppImpl implements App
                 throw e;
             }
         }
+
         log.exit(ret);
         return ret;
-
     }
 
     /**
