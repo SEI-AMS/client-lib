@@ -61,9 +61,16 @@ public class AppFinder
         List<App> ret = new ArrayList<App>();
         for (Cloudlet cloudlet: this.cloudletFinder.findCloudlets())
         {
-            for (App app : cloudlet.getApps(filter))
-                if (!contains(ret, app))
-                    ret.add(app);
+            try
+            {
+                for (App app : cloudlet.getApps(filter))
+                    if (!contains(ret, app))
+                        ret.add(app);
+            }
+            catch (Exception e)
+            {
+                log.warn("Problem getting response from cloudlet " + cloudlet.getName() + ": " + e.toString());
+            }
         }
         log.exit(ret);
         return ret;
