@@ -68,21 +68,21 @@ public interface Service
      * This action will attempt to join an existing VM by default.
      * @return Immutable instance of the information regarding the started service
      */
-    public ServiceVM startService();
+    public ServiceVM startService() throws CloudletException;
 
     /**
      * Asks the server to start the service. Blocks until the service is started.
      * @param join Specifies if we should join an existing VM or not
      * @return Immutable instance of the information regarding the started service
      */
-    public ServiceVM startService(boolean join);
+    public ServiceVM startService(boolean join) throws CloudletException;
 
     /**
      * Stops an instance of this service<br/>
      * Should eventually be removed
      * @return wether or not the service was stopped
      */
-    public boolean stopService();
+    public boolean stopService() throws CloudletException;
 
     /**
      * Gets the current instance of the running vm, if one exists<br/>

@@ -30,6 +30,7 @@ http://jquery.org/license
 package edu.cmu.sei.ams.cloudlet.impl;
 
 import edu.cmu.sei.ams.cloudlet.Cloudlet;
+import edu.cmu.sei.ams.cloudlet.CloudletException;
 import edu.cmu.sei.ams.cloudlet.Service;
 import edu.cmu.sei.ams.cloudlet.ServiceVM;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.StopVMInstanceCommand;
@@ -76,7 +77,7 @@ public class ServiceVMImpl implements ServiceVM
      * @return
      */
     @Override
-    public boolean stopVm()
+    public boolean stopVm() throws CloudletException
     {
         try
         {
@@ -84,6 +85,11 @@ public class ServiceVMImpl implements ServiceVM
             String result = commandExecutor.executeCommand(cmd, this.cloudlet.getAddress().getHostAddress(), this.cloudlet.getPort());
             //Result is ignored, it will be a blank json object on success
             return true;
+        }
+        catch (CloudletException e)
+        {
+            // We want this type of exception to be rethrown, so that it can be shown to the user.
+            throw e;
         }
         catch (Exception e)
         {

@@ -67,8 +67,14 @@ public class AppFinder
                     if (!contains(ret, app))
                         ret.add(app);
             }
+            catch (CloudletException e)
+            {
+                // We want this type of exception to be rethrown, so that it can be shown to the user.
+                throw e;
+            }
             catch (Exception e)
             {
+                // In general, we want to ignore exceptions since they may come from cloudlets that are not working properly, while others are.
                 log.warn("Problem getting response from cloudlet " + cloudlet.getName() + ": " + e.toString());
             }
         }

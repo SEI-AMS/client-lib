@@ -66,5 +66,5 @@ public interface ServiceVM
      * Will stop this instance of the service
      * @return
      */
-    public boolean stopVm();
+    public boolean stopVm() throws CloudletException;
 }

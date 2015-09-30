@@ -126,13 +126,13 @@ public class ServiceImpl implements Service
      * @return
      */
     @Override
-    public ServiceVM startService()
+    public ServiceVM startService() throws CloudletException
     {
         return startService(true);
     }
 
     @Override
-    public ServiceVM startService(boolean join)
+    public ServiceVM startService(boolean join) throws CloudletException
     {
         ServiceVM ret = null;
         StartServiceCommand cmd = new StartServiceCommand(this);
@@ -147,7 +147,8 @@ public class ServiceImpl implements Service
         }
         catch (CloudletException e)
         {
-            log.error("Error starting service", e);
+            // We want the user to see this problem.
+            throw e;
         }
         catch (JSONException e)
         {
@@ -162,7 +163,7 @@ public class ServiceImpl implements Service
      * @return
      */
     @Override
-    public boolean stopService()
+    public boolean stopService() throws CloudletException
     {
         boolean ret = false;
         if (serviceVM != null)
