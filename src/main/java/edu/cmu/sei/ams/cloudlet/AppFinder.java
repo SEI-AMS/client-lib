@@ -67,10 +67,9 @@ public class AppFinder
                     if (!contains(ret, app))
                         ret.add(app);
             }
-            catch (CloudletException e)
+            catch (CredentialsException e)
             {
-                // We want this type of exception to be rethrown, so that it can be shown to the user.
-                throw e;
+                throw new CredentialsException(cloudlet.getName()  + ": " + e.getMessage(), e);
             }
             catch (Exception e)
             {

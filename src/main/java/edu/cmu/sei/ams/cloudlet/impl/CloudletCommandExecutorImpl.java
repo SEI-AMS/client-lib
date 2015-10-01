@@ -29,7 +29,6 @@ http://jquery.org/license
 */
 package edu.cmu.sei.ams.cloudlet.impl;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -39,6 +38,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.ext.XLogger;
@@ -59,6 +59,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import edu.cmu.sei.ams.cloudlet.CloudletException;
+import edu.cmu.sei.ams.cloudlet.CredentialsException;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.CloudletCommand;
 
 /**
@@ -182,7 +183,8 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
      */
     @Override
     @SuppressWarnings("deprecation")
-    public String executeCommand(CloudletCommand cmd, String ipAddress, int port) throws CloudletException
+    public String executeCommand(CloudletCommand cmd, String ipAddress, int port)
+            throws CloudletException
     {
         log.entry(cmd.getMethod(), cmd.getPath());
 
@@ -209,15 +211,31 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
             // Fail if we didn't get a 200 OK
             if (code != 200)
             {
-                //if(code == 401)
-                //{
-                    // These type of errors can't be encrypted, since they are generated when the device is not paired.
+                // Errors can't be encrypted, since they may be generated when the device is not paired.
                 decryptResponse = false;
-                //}
 
-                //Get the error text
+                // Get the error text.
                 String responseText = getResponseText(response, decryptResponse);
-                throw new CloudletException(response.getStatusLine() + (responseText == null ? "" : ": " + responseText));
+                if(responseText == null)
+                {
+                    responseText = response.getStatusLine().toString();
+                }
+
+                // Mark if we had a credentials issue, so it can be treated slightly differently.
+                if(code == 401 || code == 403)
+                {
+                    // Strip automatic explanation that is added by Pylons to every message, if we
+                    // have a more detailed one (marked by #).
+                    String[] parts = responseText.split("#");
+                    if(parts.length > 1)
+                        responseText = parts[1];
+
+                    throw new CredentialsException(responseText);
+                }
+                else
+                {
+                    throw new CloudletException(responseText);
+                }
             }
 
             String responseText = null;
@@ -238,6 +256,10 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
         catch (CloudletException e)
         {
             throw e; //Just pass it on
+        }
+        catch (HttpHostConnectException e)
+        {
+            throw new CloudletException(e.getMessage(), e);
         }
         catch (Exception e)
         {
