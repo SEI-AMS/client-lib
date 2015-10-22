@@ -40,7 +40,7 @@ import java.util.Map;
  */
 public class GetAppListCommand extends CloudletCommand
 {
-    private static final String CMD = "/app/getList";
+    private static final String CMD = "/apps";
 
     /**
      * Default constructor will generate all apps
@@ -55,10 +55,10 @@ public class GetAppListCommand extends CloudletCommand
         Map<String,String> args = getArgs();
         if (filter.osName != null)
         {
-            args.put("os_name", filter.osName);
+            args.put("osName", filter.osName);
             if (filter.osVersion != null)
             {
-                args.put("os_version", filter.osVersion);
+                args.put("osVersion", filter.osVersion);
             }
         }
 

@@ -38,12 +38,12 @@ import java.io.File;
  */
 public class GetAppCommand extends CloudletCommand
 {
-    private static final String PATH = "/app/getApp";
+    private static final String PATH = "/apps/get";
     private final File outFile;
 
     public GetAppCommand(String appId, File outFile)
     {
-        this.getArgs().put("app_id", appId);
+        this.getArgs().put("appId", appId);
         this.outFile = outFile;
     }
 

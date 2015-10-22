@@ -36,7 +36,7 @@ package edu.cmu.sei.ams.cloudlet.impl.cmds;
  */
 public class GetMetadataCommand extends CloudletCommand
 {
-    private static final String CMD = "/cloudlet_info";
+    private static final String CMD = "/system";
 
     @Override
     public String getPath()

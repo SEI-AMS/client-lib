@@ -37,7 +37,7 @@ package edu.cmu.sei.ams.cloudlet.impl.cmds;
  */
 public class GetServicesCommand extends CloudletCommand
 {
-    private static final String CMD = "/servicevm/listServices";
+    private static final String CMD = "/services";
 
     @Override
     public String getPath()
