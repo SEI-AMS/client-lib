@@ -58,11 +58,15 @@ public class CloudletFinder
 {
     private static final XLogger log = XLoggerFactory.getXLogger(CloudletFinder.class);
 
-    private final CloudletCommandExecutor commandExecutor = new CloudletCommandExecutorImpl();
+    // Needed for encryption, if enabled.
+    private String deviceId = "";
+    private String password = "";
 
-    public void enableEncryption(String deviceId, String password)
+    public void setEncryptionCredentials(String deviceId, String password)
     {
-        commandExecutor.enableEncryption(deviceId, password);
+        log.info("Setting credentials: " + deviceId + " - " + password);
+        this.deviceId = deviceId;
+        this.password = password;
     }
 
     /**
@@ -85,8 +89,19 @@ public class CloudletFinder
                 String name = i.getName();
                 InetAddress addr = i.getInetAddresses()[0];
                 int port = i.getPort();
+                String text = i.getTextString();
+                log.info("DNS TXT: " + text);
 
-                CloudletImpl cloudlet = new CloudletImpl(name, addr, port, this.commandExecutor);
+                String encryptionState = text.split("=")[1];
+                boolean encryptionEnabled = false;
+                if(encryptionState.equals("enabled"))
+                    encryptionEnabled = true;
+
+                CloudletCommandExecutor commandExecutor = new CloudletCommandExecutorImpl();
+                if(encryptionEnabled)
+                    commandExecutor.enableEncryption(deviceId, password);
+
+                CloudletImpl cloudlet = new CloudletImpl(name, addr, port, encryptionEnabled, commandExecutor);
 
                 ret.add(cloudlet);
             }

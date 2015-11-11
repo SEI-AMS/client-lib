@@ -77,16 +77,18 @@ public class CloudletImpl implements Cloudlet
     private final String name;
     private final InetAddress addr;
     private final int port;
+    private final boolean encryptionEnabled;
 
     private List<Service> servicesCache;
 
     private final CloudletCommandExecutor commandExecutor;
 
-    public CloudletImpl(String name, InetAddress addr, int port, CloudletCommandExecutor commandExecutor)
+    public CloudletImpl(String name, InetAddress addr, int port, boolean encryptionEnabled, CloudletCommandExecutor commandExecutor)
     {
         this.name = name;
         this.addr = addr;
         this.port = port;
+        this.encryptionEnabled = encryptionEnabled;
         this.commandExecutor = commandExecutor;
     }
 
@@ -115,6 +117,14 @@ public class CloudletImpl implements Cloudlet
     public int getPort()
     {
         return port;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isEncryptionEnabled() {
+        return encryptionEnabled;
     }
 
     /**

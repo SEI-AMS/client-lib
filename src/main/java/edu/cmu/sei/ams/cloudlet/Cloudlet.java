@@ -60,6 +60,12 @@ public interface Cloudlet
     public int getPort();
 
     /**
+     * True if encryption is enabled for the API, false if not.
+     * @return
+     */
+    public boolean isEncryptionEnabled();
+
+    /**
      * Gets a list of services available on this Cloudlet
      * @return list of services
      * @throws CloudletException can throw exceptions when server is unreachable or bad data is returned
