@@ -96,6 +96,15 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isEncryptionEnabled()
+    {
+        return encryptionEnabled;
+    }
+
+    /**
      * Compiles a command into an unencrypted API call.
      * @param cmd The object with the command details.
      * @return A HttpRequestBase request containing an URL to call the API for the given command.

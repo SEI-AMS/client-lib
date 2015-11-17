@@ -1,5 +1,5 @@
 /*
-KVM-based Discoverable Cloudlet (KD-Cloudlet) 
+KVM-based Discoverable Cloudlet (KD-Cloudlet)
 Copyright (c) 2015 Carnegie Mellon University.
 All Rights Reserved.
 
@@ -10,7 +10,7 @@ DM-0002138
 
 KD-Cloudlet includes and/or makes use of the following Third-Party Software subject to their own licenses:
 MiniMongo
-Copyright (c) 2010-2014, Steve Lacy 
+Copyright (c) 2010-2014, Steve Lacy
 All rights reserved. Released under BSD license.
 https://github.com/MiniMongo/minimongo/blob/master/LICENSE
 
@@ -27,37 +27,36 @@ Copyright 2005, 2014 jQuery Foundation, Inc. and other contributors
 Released under the MIT license
 http://jquery.org/license
 */
-package edu.cmu.sei.ams.cloudlet.impl;
-
-import edu.cmu.sei.ams.cloudlet.CloudletException;
-import edu.cmu.sei.ams.cloudlet.impl.cmds.CloudletCommand;
+package edu.cmu.sei.ams.cloudlet;
 
 /**
- * User: jdroot
- * Date: 3/24/14
- * Time: 3:18 PM
- * Internal interface for an object that is able to execute Cloudlet commands.
+ * Created by Sebastian on 2015-11-13.
  */
-public interface CloudletCommandExecutor
-{
-    String executeCommand(CloudletCommand cmd, String ipAddress, int port)
-            throws CloudletException;
+public interface ICredentialsManager {
+    /**
+     * Creates the full path given a file name/id.
+     * @param fileName The name of the file.
+     * @return the full path.
+     */
+    String getFullPath(String cloudletName, String fileName);
 
     /**
-     * Enables encrypted communication.
-     * @param deviceId The id used o identify the device in encrypted connections.
-     * @param password The password to use when encrypting and decrypting.
+     * Returns the encryption password.
+     * @return the encryption password string.
      */
-    void enableEncryption(String deviceId, String password);
+    String getEncryptionPassword(String cloudletName);
 
     /**
-     * Disables encrypted communication (it is disabled by default).
+     * Stores an IBC related file.
+     * @param fileContents the data in the file as bytes
+     * @param fileId the file name
      */
-    void disableEncryption();
+    void storeFile(String cloudletName, byte[] fileContents, String fileId);
 
     /**
-     * Checks whether encryption is enabled.
-     * @return true if enabled, false if not
+     * Loads data from a file
+     * @param fileId the file name
+     * @return the data in the file as a string
      */
-    boolean isEncryptionEnabled();
+    String loadDataFromFile(String cloudletName, String fileId);
 }

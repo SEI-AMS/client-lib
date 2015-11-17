@@ -60,13 +60,12 @@ public class CloudletFinder
 
     // Needed for encryption, if enabled.
     private String deviceId = "";
-    private String password = "";
+    private ICredentialsManager credentialsManager;
 
-    public void setEncryptionCredentials(String deviceId, String password)
+    public CloudletFinder(String deviceId, ICredentialsManager credentialsManager)
     {
-        log.info("Setting credentials: " + deviceId + " - " + password);
         this.deviceId = deviceId;
-        this.password = password;
+        this.credentialsManager = credentialsManager;
     }
 
     /**
@@ -97,11 +96,20 @@ public class CloudletFinder
                 if(encryptionState.equals("enabled"))
                     encryptionEnabled = true;
 
+                // Create a command executor for this cloudlet.
                 CloudletCommandExecutor commandExecutor = new CloudletCommandExecutorImpl();
-                if(encryptionEnabled)
-                    commandExecutor.enableEncryption(deviceId, password);
+                if(encryptionEnabled) {
+                    // Get the password for this particular cloudlet.
+                    String[] nameParts = name.split(" ");
+                    String cleanName = nameParts[nameParts.length - 1];
+                    log.info("Hostname: " + cleanName);
+                    String password = this.credentialsManager.getEncryptionPassword(cleanName);
 
-                CloudletImpl cloudlet = new CloudletImpl(name, addr, port, encryptionEnabled, commandExecutor);
+                    // Set the encryption.
+                    commandExecutor.enableEncryption(deviceId, password);
+                }
+
+                CloudletImpl cloudlet = new CloudletImpl(name, addr, port, commandExecutor);
 
                 ret.add(cloudlet);
             }
