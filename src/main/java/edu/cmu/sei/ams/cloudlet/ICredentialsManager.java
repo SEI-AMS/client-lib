@@ -59,4 +59,10 @@ public interface ICredentialsManager {
      * @return the data in the file as a string
      */
     String loadDataFromFile(String cloudletName, String fileId);
+
+    /**
+     * Removes all credentials.
+     * @return true if they were removed, false otherwise.
+     */
+    boolean clearCredentials();
 }
