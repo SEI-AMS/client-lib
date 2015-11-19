@@ -72,6 +72,14 @@ public class DummyCredentialsManager implements ICredentialsManager {
      * {@inheritDoc}
      */
     @Override
+    public byte[] loadBinaryDataFromFile(String cloudletName, String fileId) {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean clearCredentials() {
         return true;
     }

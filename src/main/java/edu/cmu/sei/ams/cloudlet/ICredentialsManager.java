@@ -61,6 +61,13 @@ public interface ICredentialsManager {
     String loadDataFromFile(String cloudletName, String fileId);
 
     /**
+     * Loads data from a file
+     * @param fileId the file name
+     * @return the data in the file as a a byte array
+     */
+    byte[] loadBinaryDataFromFile(String cloudletName, String fileId);
+
+    /**
      * Removes all credentials.
      * @return true if they were removed, false otherwise.
      */
