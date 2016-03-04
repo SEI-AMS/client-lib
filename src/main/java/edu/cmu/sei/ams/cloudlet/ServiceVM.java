@@ -54,7 +54,7 @@ public interface ServiceVM
      * Returns the address that this service is running on
      * @return
      */
-    public InetAddress getAddress();
+    public String getDomainName();
 
     /**
      * Returns the port that this service is running on

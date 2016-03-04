@@ -51,7 +51,7 @@ public class ServiceVMImpl implements ServiceVM
 {
     private static final XLogger log = XLoggerFactory.getXLogger(ServiceVMImpl.class);
     private String instanceId;
-    private InetAddress address;
+    private String fqDomainName;
     private int port;
     private JSONObject json;
 
@@ -65,7 +65,7 @@ public class ServiceVMImpl implements ServiceVM
         this.commandExecutor = commandExecutor;
         this.cloudlet = cloudlet;
         this.instanceId = getSafeString("_id", obj);
-        this.address = getSafeInetAddress("ip_address", obj);
+        this.fqDomainName = getSafeString("fqdn", obj);
         this.port = getSafeInt("port", obj);
         this.mService = mService;
         this.json = obj;
@@ -123,9 +123,9 @@ public class ServiceVMImpl implements ServiceVM
      * @return
      */
     @Override
-    public InetAddress getAddress()
+    public String getDomainName()
     {
-        return address;
+        return this.fqDomainName;
     }
 
     /**
