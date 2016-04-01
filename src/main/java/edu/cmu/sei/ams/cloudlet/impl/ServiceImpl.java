@@ -193,4 +193,13 @@ public class ServiceImpl implements Service
     {
         return json.toString();
     }
+
+    /**
+     * {@inheritDoc}
+     * @return
+     */
+    @Override
+    public Cloudlet getCloudlet() {
+        return cloudlet;
+    }
 }

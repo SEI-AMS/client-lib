@@ -90,4 +90,10 @@ public interface Service
      * @return Null if the running instance doesnt exist, ServiceVM if it does
      */
     public ServiceVM getServiceVM();
+
+    /**
+     * Returns the cloudlet being used.
+     * @return
+     */
+    Cloudlet getCloudlet();
 }

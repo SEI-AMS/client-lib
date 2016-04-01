@@ -32,6 +32,8 @@ package edu.cmu.sei.ams.cloudlet;
 import java.net.InetAddress;
 import java.util.List;
 
+import edu.cmu.sei.ams.cloudlet.impl.cmds.*;
+
 /**
  * User: jdroot
  * Date: 3/19/14
@@ -94,6 +96,13 @@ public interface Cloudlet
      * @throws CloudletException can throw exceptions when the server is unreachable or bad data is returned
      */
     public CloudletSystemInfo getSystemInfo() throws CloudletException;
+
+    /**
+     * Gets a list of pending messages available on the cloudlet.
+     * @return
+     * @throws CloudletException can throw exceptions when the server is unreachable or bad data is returned
+     */
+    public List<DeviceMessage> getMessages() throws CloudletException;
 
     /**
      * Gets a list of apps available for installation from this Cloudlet

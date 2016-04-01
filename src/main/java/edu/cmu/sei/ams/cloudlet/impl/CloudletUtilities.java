@@ -136,6 +136,20 @@ public class CloudletUtilities
         return null;
     }
 
+    static JSONArray getSafeJsonArray(String name, JSONObject json)
+    {
+        try
+        {
+            if (json.has(name))
+                return json.getJSONArray(name);
+        }
+        catch (Exception e)
+        {
+
+        }
+        return null;
+    }
+
     /**
      * Creates an immutable list based on a comma seperated json string
      * @param name

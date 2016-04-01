@@ -30,36 +30,17 @@ http://jquery.org/license
 package edu.cmu.sei.ams.cloudlet.impl;
 
 import edu.cmu.sei.ams.cloudlet.*;
-import edu.cmu.sei.ams.cloudlet.impl.cmds.CloudletCommand;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.GetAppListCommand;
+import edu.cmu.sei.ams.cloudlet.impl.cmds.GetDeviceMessagesCommand;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.GetMetadataCommand;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.GetServicesCommand;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -170,6 +151,17 @@ public class CloudletImpl implements Cloudlet
     {
         String ret = this.commandExecutor.executeCommand(new GetMetadataCommand(), this.getAddress().getHostAddress(), this.getPort());
         return new CloudletSystemInfoImpl(new JSONObject(ret));
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DeviceMessage> getMessages() throws CloudletException
+    {
+        String ret = this.commandExecutor.executeCommand(new GetDeviceMessagesCommand(), this.getAddress().getHostAddress(), this.getPort());
+        return DeviceMessageImpl.createFromJson(new JSONObject(ret));
     }
 
     /**

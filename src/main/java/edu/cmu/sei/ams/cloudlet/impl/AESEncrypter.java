@@ -33,7 +33,6 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
@@ -47,6 +46,8 @@ import java.security.SecureRandom;
  */
 public class AESEncrypter {
     private static final XLogger log = XLoggerFactory.getXLogger(AESEncrypter.class);
+
+    private static final int blockSize = 16;
 
     protected String password;
     protected SecretKeySpec skeySpec;
@@ -92,12 +93,11 @@ public class AESEncrypter {
         try
         {
             SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-            byte[] b = new byte[16];
+            byte[] b = new byte[blockSize];
             random.nextBytes(b);
             byte[] iv = b;
             //log.info("IV: " + String.valueOf(Hex.encodeHex(iv)));
 
-            // TODO: change to CBC method with padding.
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, this.skeySpec, new IvParameterSpec(iv));
 
@@ -122,15 +122,15 @@ public class AESEncrypter {
         try {
             //log.info("Encrypted string: " + encrypted);
             byte[] cryptedBytes = Base64.decodeBase64(encrypted.getBytes());
+            log.info("Crypted bytes length: " + cryptedBytes.length);
 
-            byte[] iv = new byte[16];
-            System.arraycopy(cryptedBytes, 0, iv, 0, 16);
+            byte[] iv = new byte[blockSize];
+            System.arraycopy(cryptedBytes, 0, iv, 0, blockSize);
             //log.info("IV: " + String.valueOf(Hex.encodeHex(iv)));
-            byte[] crypted = new byte[cryptedBytes.length - 16];
-            System.arraycopy(cryptedBytes, 16, crypted, 0, crypted.length);
+            byte[] crypted = new byte[cryptedBytes.length - blockSize];
+            System.arraycopy(cryptedBytes, blockSize, crypted, 0, crypted.length);
             //log.info("Cipher Text: " + String.valueOf(Hex.encodeHex(crypted)));
 
-            // TODO: change to CBC method with padding.
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, this.skeySpec, new IvParameterSpec(iv));
 
