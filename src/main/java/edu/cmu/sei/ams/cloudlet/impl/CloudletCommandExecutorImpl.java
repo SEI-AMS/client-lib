@@ -78,11 +78,19 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
      * {@inheritDoc}
      */
     @Override
-    public void enableEncryption(String deviceId, String password)
+    public void setDeviceId(String deviceId)
+    {
+        this.deviceId = deviceId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void enableEncryption(String password)
     {
         this.encryptionEnabled = true;
         this.encrypter = new AESEncrypter(password);
-        this.deviceId = deviceId;
     }
 
     /**

@@ -45,10 +45,9 @@ public interface CloudletCommandExecutor
 
     /**
      * Enables encrypted communication.
-     * @param deviceId The id used o identify the device in encrypted connections.
      * @param password The password to use when encrypting and decrypting.
      */
-    void enableEncryption(String deviceId, String password);
+    void enableEncryption(String password);
 
     /**
      * Disables encrypted communication (it is disabled by default).
@@ -60,4 +59,10 @@ public interface CloudletCommandExecutor
      * @return true if enabled, false if not
      */
     boolean isEncryptionEnabled();
+
+    /**
+     *
+     * @param deviceId The id used o identify the device in encrypted connections.
+     */
+    void setDeviceId(String deviceId);
 }

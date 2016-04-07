@@ -98,6 +98,7 @@ public class CloudletFinder
 
                 // Create a command executor for this cloudlet.
                 CloudletCommandExecutor commandExecutor = new CloudletCommandExecutorImpl();
+                commandExecutor.setDeviceId(deviceId);
                 if(encryptionEnabled) {
                     // Get the password for this particular cloudlet.
                     String[] nameParts = name.split(" ");
@@ -106,7 +107,7 @@ public class CloudletFinder
                     String password = this.credentialsManager.getEncryptionPassword(cleanName);
 
                     // Set the encryption.
-                    commandExecutor.enableEncryption(deviceId, password);
+                    commandExecutor.enableEncryption(password);
                 }
 
                 CloudletImpl cloudlet = new CloudletImpl(name, addr, port, commandExecutor);

@@ -30,6 +30,7 @@ http://jquery.org/license
 package edu.cmu.sei.ams.cloudlet;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * User: jdroot
@@ -76,6 +77,21 @@ public interface Service
      * @return Immutable instance of the information regarding the started service
      */
     public ServiceVM startService(boolean join) throws CloudletException;
+
+
+    /**
+     * Asks the server to start the service. Blocks until the service is started.
+     * @param join Specifies if we should join an existing VM or not
+     * @return Immutable instance of the information regarding the started service
+     */
+    public ServiceVM startService(Map<String, IDeviceMessageHandler> handlers) throws CloudletException;
+
+    /**
+     * Asks the server to start the service. Blocks until the service is started.
+     * @param join Specifies if we should join an existing VM or not
+     * @return Immutable instance of the information regarding the started service
+     */
+    public ServiceVM startService(boolean join, Map<String, IDeviceMessageHandler> handlers) throws CloudletException;
 
     /**
      * Stops an instance of this service<br/>

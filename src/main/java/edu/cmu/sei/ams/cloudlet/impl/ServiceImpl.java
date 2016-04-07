@@ -31,6 +31,8 @@ package edu.cmu.sei.ams.cloudlet.impl;
 
 import edu.cmu.sei.ams.cloudlet.Cloudlet;
 import edu.cmu.sei.ams.cloudlet.CloudletException;
+import edu.cmu.sei.ams.cloudlet.DeviceMessageManager;
+import edu.cmu.sei.ams.cloudlet.IDeviceMessageHandler;
 import edu.cmu.sei.ams.cloudlet.Service;
 import edu.cmu.sei.ams.cloudlet.ServiceVM;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.StartServiceCommand;
@@ -40,8 +42,8 @@ import org.json.JSONObject;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
-
 import java.util.List;
+import java.util.Map;
 
 import static edu.cmu.sei.ams.cloudlet.impl.CloudletUtilities.*;
 
@@ -64,6 +66,7 @@ public class ServiceImpl implements Service
     private final Cloudlet cloudlet;
 
     private ServiceVM serviceVM;
+    private Thread messageCheckerThread;
 
     /**
      * Creates an instance a service based on a specific cloudlet
@@ -131,8 +134,28 @@ public class ServiceImpl implements Service
         return startService(true);
     }
 
+    /**
+     * {@inheritDoc}
+     * @return
+     */
     @Override
     public ServiceVM startService(boolean join) throws CloudletException
+    {
+        return startService(join);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return
+     */
+    @Override
+    public ServiceVM startService(final Map<String, IDeviceMessageHandler> handlers) throws CloudletException
+    {
+        return startService(true, handlers);
+    }
+
+    @Override
+    public ServiceVM startService(boolean join, final Map<String, IDeviceMessageHandler> handlers) throws CloudletException
     {
         ServiceVM ret = null;
         StartServiceCommand cmd = new StartServiceCommand(this);
@@ -144,6 +167,23 @@ public class ServiceImpl implements Service
             JSONObject obj = new JSONObject(jsonStr);
             ret = new ServiceVMImpl(this.commandExecutor, this.cloudlet, this, obj);
             this.serviceVM = ret;
+
+            // Create a thread that will check for messages associated to this service and device.
+            messageCheckerThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if(handlers.size() > 0) {
+                        DeviceMessageManager manager = new DeviceMessageManager();
+                        for (String message: handlers.keySet()) {
+                            manager.registerHandler(message, handlers.get(message));
+                        }
+
+                        // TODO: what happens after migration, if we are passing the current cloudlet here?
+                        manager.execute(getCloudlet(), serviceId);
+                    }
+                }
+            });
+            messageCheckerThread.start();
         }
         catch (CloudletException e)
         {
@@ -170,6 +210,12 @@ public class ServiceImpl implements Service
         {
             ret = serviceVM.stopVm();
             serviceVM = null;
+
+            if(messageCheckerThread != null)
+            {
+                messageCheckerThread.interrupt();
+                messageCheckerThread = null;
+            }
         }
         return ret;
     }

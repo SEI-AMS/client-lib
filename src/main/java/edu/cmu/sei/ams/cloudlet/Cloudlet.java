@@ -102,7 +102,7 @@ public interface Cloudlet
      * @return
      * @throws CloudletException can throw exceptions when the server is unreachable or bad data is returned
      */
-    public List<DeviceMessage> getMessages() throws CloudletException;
+    public List<DeviceMessage> getMessages(String serviceId) throws CloudletException;
 
     /**
      * Gets a list of apps available for installation from this Cloudlet

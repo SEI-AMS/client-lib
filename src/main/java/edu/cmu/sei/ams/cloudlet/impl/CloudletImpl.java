@@ -158,9 +158,9 @@ public class CloudletImpl implements Cloudlet
      * {@inheritDoc}
      */
     @Override
-    public List<DeviceMessage> getMessages() throws CloudletException
+    public List<DeviceMessage> getMessages(String serviceId) throws CloudletException
     {
-        String ret = this.commandExecutor.executeCommand(new GetDeviceMessagesCommand(), this.getAddress().getHostAddress(), this.getPort());
+        String ret = this.commandExecutor.executeCommand(new GetDeviceMessagesCommand(serviceId), this.getAddress().getHostAddress(), this.getPort());
         return DeviceMessageImpl.createFromJson(new JSONObject(ret));
     }
 

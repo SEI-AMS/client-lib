@@ -34,6 +34,11 @@ public class GetDeviceMessagesCommand extends CloudletCommand
 {
     private static final String PATH = "/system/get_messages";
 
+    public GetDeviceMessagesCommand(String serviceId)
+    {
+        this.getArgs().put("serviceId", serviceId);
+    }
+
     @Override
     public String getPath()
     {
