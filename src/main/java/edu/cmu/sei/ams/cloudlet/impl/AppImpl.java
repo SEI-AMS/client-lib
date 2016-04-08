@@ -50,7 +50,6 @@ import static edu.cmu.sei.ams.cloudlet.impl.CloudletUtilities.*;
 public class AppImpl implements App
 {
     private static final XLogger log = XLoggerFactory.getXLogger(AppImpl.class);
-    private final CloudletCommandExecutor mExecutor;
     private final Cloudlet cloudlet;
     private final JSONObject json;
 
@@ -64,9 +63,8 @@ public class AppImpl implements App
     private final String serviceId;
     private final String description;
 
-    AppImpl(CloudletCommandExecutor mExecutor, Cloudlet cloudlet, JSONObject json)
+    AppImpl(Cloudlet cloudlet, JSONObject json)
     {
-        this.mExecutor = mExecutor;
         this.cloudlet = cloudlet;
         this.json = json;
 
@@ -195,11 +193,9 @@ public class AppImpl implements App
             ret = outFile;
         } else
         {
-            log.debug("Downloading APK file.");
-            GetAppCommand cmd = new GetAppCommand(this.getId(), outFile);
-
             // Response will contain the MD5 sum for validation.
-            String md5 = mExecutor.executeCommand(cmd, cloudlet.getAddress().getHostAddress(), cloudlet.getPort());
+            log.debug("Downloading APK file.");
+            String md5 = cloudlet.getApp(this.getId(), outFile);
 
             if (this.getMD5Sum() == null)
             {

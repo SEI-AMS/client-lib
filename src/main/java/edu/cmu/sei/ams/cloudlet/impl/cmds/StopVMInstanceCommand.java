@@ -29,8 +29,6 @@ http://jquery.org/license
 */
 package edu.cmu.sei.ams.cloudlet.impl.cmds;
 
-import edu.cmu.sei.ams.cloudlet.ServiceVM;
-
 /**
  * User: jdroot
  * Date: 3/25/14
@@ -42,9 +40,9 @@ public class StopVMInstanceCommand extends CloudletCommand
 
     private static final String CMD = "/servicevm/stop";
 
-    public StopVMInstanceCommand(ServiceVM vm)
+    public StopVMInstanceCommand(String instanceId)
     {
-        getArgs().put("instanceId", vm.getInstanceId());
+        getArgs().put("instanceId", instanceId);
     }
 
     @Override

@@ -7,5 +7,5 @@ import java.util.HashMap;
  */
 public interface IDeviceMessageHandler {
 
-    void handleData(HashMap<String, String> data) throws MessageException;
+    void handleData(HashMap<String, String> data, ICurrentCloudlerHolder currentCloudlerHolder) throws MessageException;
 }

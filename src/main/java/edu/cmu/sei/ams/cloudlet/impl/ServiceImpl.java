@@ -62,24 +62,22 @@ public class ServiceImpl implements Service
     private JSONObject json;
     private List<String> tags;
 
-    private final CloudletCommandExecutor commandExecutor;
     private final Cloudlet cloudlet;
 
     private ServiceVM serviceVM;
     private Thread messageCheckerThread;
+    private DeviceMessageManager messageManager;
 
     /**
      * Creates an instance a service based on a specific cloudlet
-     * @param commandExecutor The cloudlet this service lives on
      * @param json The json data describing this service
      */
-    ServiceImpl(CloudletCommandExecutor commandExecutor, Cloudlet cloudlet, JSONObject json)
+    ServiceImpl(Cloudlet cloudlet, JSONObject json)
     {
         this.serviceId = getSafeString("service_id", json);
         this.description = getSafeString("description", json);
         this.version = getSafeString("version", json);
         this.tags = getSafeStringArray("tags", json);
-        this.commandExecutor = commandExecutor;
         this.cloudlet = cloudlet;
         this.json = json;
     }
@@ -157,45 +155,28 @@ public class ServiceImpl implements Service
     @Override
     public ServiceVM startService(boolean join, final Map<String, IDeviceMessageHandler> handlers) throws CloudletException
     {
-        ServiceVM ret = null;
-        StartServiceCommand cmd = new StartServiceCommand(this);
-        cmd.setJoin(join);
-        String jsonStr = "";
-        try
-        {
-            jsonStr = commandExecutor.executeCommand(cmd, cloudlet.getAddress().getHostAddress(), cloudlet.getPort());
-            JSONObject obj = new JSONObject(jsonStr);
-            ret = new ServiceVMImpl(this.commandExecutor, this.cloudlet, this, obj);
-            this.serviceVM = ret;
+        this.serviceVM = cloudlet.startService(serviceId, join);
 
+        if(this.serviceVM != null) {
             // Create a thread that will check for messages associated to this service and device.
+            stopMessageThread();
             messageCheckerThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    if(handlers.size() > 0) {
-                        DeviceMessageManager manager = new DeviceMessageManager();
-                        for (String message: handlers.keySet()) {
-                            manager.registerHandler(message, handlers.get(message));
+                    if (handlers.size() > 0) {
+                        messageManager = new DeviceMessageManager();
+                        for (String message : handlers.keySet()) {
+                            messageManager.registerHandler(message, handlers.get(message));
                         }
 
-                        // TODO: what happens after migration, if we are passing the current cloudlet here?
-                        manager.execute(getCloudlet(), serviceId);
+                        messageManager.execute(cloudlet, serviceId);
                     }
                 }
             });
             messageCheckerThread.start();
         }
-        catch (CloudletException e)
-        {
-            // We want the user to see this problem.
-            throw e;
-        }
-        catch (JSONException e)
-        {
-            log.error("Error parsing reply: " + jsonStr + ";", e);
-            e.printStackTrace();
-        }
-        return ret;
+
+        return this.serviceVM;
     }
 
     /**
@@ -210,14 +191,18 @@ public class ServiceImpl implements Service
         {
             ret = serviceVM.stopVm();
             serviceVM = null;
-
-            if(messageCheckerThread != null)
-            {
-                messageCheckerThread.interrupt();
-                messageCheckerThread = null;
-            }
+            stopMessageThread();
         }
         return ret;
+    }
+
+    private void stopMessageThread()
+    {
+        if(messageCheckerThread != null)
+        {
+            messageCheckerThread.interrupt();
+            messageCheckerThread = null;
+        }
     }
 
     /**

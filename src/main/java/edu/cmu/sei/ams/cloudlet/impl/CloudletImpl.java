@@ -30,16 +30,21 @@ http://jquery.org/license
 package edu.cmu.sei.ams.cloudlet.impl;
 
 import edu.cmu.sei.ams.cloudlet.*;
+import edu.cmu.sei.ams.cloudlet.impl.cmds.GetAppCommand;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.GetAppListCommand;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.GetDeviceMessagesCommand;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.GetMetadataCommand;
 import edu.cmu.sei.ams.cloudlet.impl.cmds.GetServicesCommand;
+import edu.cmu.sei.ams.cloudlet.impl.cmds.StartServiceCommand;
+import edu.cmu.sei.ams.cloudlet.impl.cmds.StopVMInstanceCommand;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,15 +65,23 @@ public class CloudletImpl implements Cloudlet
     private final int port;
 
     private List<Service> servicesCache;
-
     private final CloudletCommandExecutor commandExecutor;
 
-    public CloudletImpl(String name, InetAddress addr, int port, CloudletCommandExecutor commandExecutor)
+    public CloudletImpl(String name, InetAddress addr, int port, boolean encryptionEnabled,
+                        String deviceId, ICredentialsManager credentialsManager)
     {
         this.name = name;
         this.addr = addr;
         this.port = port;
-        this.commandExecutor = commandExecutor;
+
+        // Create a command executor for this cloudlet.
+        commandExecutor = new CloudletCommandExecutorImpl();
+        commandExecutor.setDeviceId(deviceId);
+        if(encryptionEnabled) {
+            // Get the stored password for this cloudlet and enable encryption for it.
+            String password = credentialsManager.getEncryptionPassword(name);
+            commandExecutor.enableEncryption(password);
+        }
     }
 
     /**
@@ -147,6 +160,38 @@ public class CloudletImpl implements Cloudlet
      * {@inheritDoc}
      */
     @Override
+    public ServiceVM startService(String serviceId, boolean join) throws CloudletException {
+        ServiceVM serviceVM = null;
+        StartServiceCommand cmd = new StartServiceCommand(serviceId, join);
+        String jsonStr = "";
+        try
+        {
+            jsonStr = commandExecutor.executeCommand(cmd, this.getAddress().getHostAddress(), this.getPort());
+            JSONObject obj = new JSONObject(jsonStr);
+            serviceVM = new ServiceVMImpl(this, serviceId, obj);
+        }
+        catch (JSONException e)
+        {
+            log.error("Error parsing reply: " + jsonStr + ";", e);
+            e.printStackTrace();
+        }
+        return serviceVM;
+
+    }
+
+    @Override
+    public boolean stopServiceVM(String serviceVMId) throws CloudletException {
+        StopVMInstanceCommand cmd = new StopVMInstanceCommand(serviceVMId);
+        String result = commandExecutor.executeCommand(cmd, this.getAddress().getHostAddress(), this.getPort());
+
+        // Result is ignored, it will be a blank json object on success.
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public CloudletSystemInfo getSystemInfo() throws CloudletException
     {
         String ret = this.commandExecutor.executeCommand(new GetMetadataCommand(), this.getAddress().getHostAddress(), this.getPort());
@@ -188,7 +233,7 @@ public class CloudletImpl implements Cloudlet
             for (int x = 0; x < services.length(); x++)
             {
                 JSONObject service = services.getJSONObject(x);
-                _ret.add(new ServiceImpl(this.commandExecutor, this, service));
+                _ret.add(new ServiceImpl(this, service));
             }
         }
         catch (Exception e)
@@ -243,7 +288,7 @@ public class CloudletImpl implements Cloudlet
             for (int x = 0; x < apps.length(); x++)
             {
                 JSONObject app = apps.getJSONObject(x);
-                ret.add(new AppImpl(this.commandExecutor, this, app));
+                ret.add(new AppImpl(this, app));
             }
         }
         catch (Exception e)
@@ -253,6 +298,19 @@ public class CloudletImpl implements Cloudlet
 
         log.exit(ret);
         return ret;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getApp(String appId, File outFile) throws CloudletException
+    {
+        GetAppCommand cmd = new GetAppCommand(appId, outFile);
+
+        // Response will contain the MD5 sum for validation.
+        String md5 = commandExecutor.executeCommand(cmd, this.getAddress().getHostAddress(), this.getPort());
+        return md5;
     }
 
     public String toString()

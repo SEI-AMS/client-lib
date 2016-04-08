@@ -31,14 +31,10 @@ package edu.cmu.sei.ams.cloudlet.impl;
 
 import edu.cmu.sei.ams.cloudlet.Cloudlet;
 import edu.cmu.sei.ams.cloudlet.CloudletException;
-import edu.cmu.sei.ams.cloudlet.Service;
 import edu.cmu.sei.ams.cloudlet.ServiceVM;
-import edu.cmu.sei.ams.cloudlet.impl.cmds.StopVMInstanceCommand;
 import org.json.JSONObject;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
-
-import java.net.InetAddress;
 
 import static edu.cmu.sei.ams.cloudlet.impl.CloudletUtilities.*;
 
@@ -55,19 +51,17 @@ public class ServiceVMImpl implements ServiceVM
     private int port;
     private JSONObject json;
 
-    private Service mService;
-    private final CloudletCommandExecutor commandExecutor;
+    private String serviceId;
     private final Cloudlet cloudlet;
 
-    ServiceVMImpl(CloudletCommandExecutor commandExecutor, Cloudlet cloudlet, Service mService, JSONObject obj)
+    ServiceVMImpl(Cloudlet cloudlet, String serviceId, JSONObject obj)
     {
-        log.entry(commandExecutor, mService, obj);
-        this.commandExecutor = commandExecutor;
+        log.entry(cloudlet, serviceId, obj);
         this.cloudlet = cloudlet;
         this.instanceId = getSafeString("_id", obj);
         this.fqDomainName = getSafeString("fqdn", obj);
         this.port = getSafeInt("port", obj);
-        this.mService = mService;
+        this.serviceId = serviceId;
         this.json = obj;
         log.exit();
     }
@@ -81,10 +75,7 @@ public class ServiceVMImpl implements ServiceVM
     {
         try
         {
-            StopVMInstanceCommand cmd = new StopVMInstanceCommand(this);
-            String result = commandExecutor.executeCommand(cmd, this.cloudlet.getAddress().getHostAddress(), this.cloudlet.getPort());
-            //Result is ignored, it will be a blank json object on success
-            return true;
+            return this.cloudlet.stopServiceVM(instanceId);
         }
         catch (CloudletException e)
         {
@@ -105,7 +96,7 @@ public class ServiceVMImpl implements ServiceVM
     @Override
     public String getServiceId()
     {
-        return mService.getServiceId();
+        return serviceId;
     }
 
     /**

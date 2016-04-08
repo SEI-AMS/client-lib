@@ -29,6 +29,7 @@ http://jquery.org/license
 */
 package edu.cmu.sei.ams.cloudlet;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.util.List;
 
@@ -91,6 +92,22 @@ public interface Cloudlet
     public Service getServiceById(String id) throws CloudletException;
 
     /**
+     * Starts a Service VM, or locates an existing one, for the given service.
+     * @param serviceId The service ID to start a VM for
+     * @return The service VM object
+     * @throws CloudletException
+     */
+    ServiceVM startService(String serviceId, boolean join) throws CloudletException;
+
+    /**
+     * Stops a Service VM.
+     * @param serviceVMId the ID of the vm to stop.
+     * @return true if it was stopped
+     * @throws CloudletException
+     */
+    boolean stopServiceVM(String serviceVMId) throws CloudletException;
+
+    /**
      * Gets the current CPU and Memory state of the Cloudlet for evaluating Cloudlet selection
      * @return
      * @throws CloudletException can throw exceptions when the server is unreachable or bad data is returned
@@ -126,4 +143,13 @@ public interface Cloudlet
      * @throws CloudletException
      */
     public List<App> getApps(AppFilter filter) throws CloudletException;
+
+    /**
+     * Downloads the APK of an app.
+     * @param appId the id of the app to download
+     * @param outFile the file where the APK contents will be stored
+     * @return the md5 hash of the downloaded file
+     * @throws CloudletException
+     */
+    public String getApp(String appId, File outFile) throws CloudletException;
 }

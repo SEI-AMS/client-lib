@@ -29,8 +29,6 @@ http://jquery.org/license
 */
 package edu.cmu.sei.ams.cloudlet.impl.cmds;
 
-import edu.cmu.sei.ams.cloudlet.Service;
-
 /**
  * User: jdroot
  * Date: 3/24/14
@@ -42,9 +40,15 @@ public class StartServiceCommand extends CloudletCommand
 
     private static final String CMD = "/servicevm/start";
 
-    public StartServiceCommand(Service mService)
+    public StartServiceCommand(String serviceId)
     {
-        getArgs().put("serviceId", mService.getServiceId());
+        getArgs().put("serviceId", serviceId);
+    }
+
+    public StartServiceCommand(String serviceId, boolean join)
+    {
+        getArgs().put("serviceId", serviceId);
+        setJoin(join);
     }
 
     public void setJoin(boolean join)

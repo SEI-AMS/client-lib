@@ -39,7 +39,7 @@ import edu.cmu.sei.ams.cloudlet.DeviceMessage;
 /**
  * Created by Sebastian on 2016-03-28.
  */
-public class DeviceMessageManager {
+public class DeviceMessageManager implements ICurrentCloudlerHolder {
     private HashMap<String, IDeviceMessageHandler> handlers = new HashMap<String, IDeviceMessageHandler>();
 
     private boolean stopped = false;
@@ -48,11 +48,20 @@ public class DeviceMessageManager {
         stopped = true;
     }
 
+    private Cloudlet currentCloudlet;
+
     public void registerHandler(String message, IDeviceMessageHandler newHandler) {
         handlers.put(message, newHandler);
     }
 
-    public void execute(Cloudlet currentCloudlet, String serviceId) {
+    @Override
+    public void setCurrentCloudlet(Cloudlet cloudlet) {
+        currentCloudlet = cloudlet;
+    }
+
+    public void execute(Cloudlet cloudlet, String serviceId) {
+        setCurrentCloudlet(cloudlet);
+
         while(!stopped) {
             try {
                 List<DeviceMessage> messages = currentCloudlet.getMessages(serviceId);
@@ -62,7 +71,7 @@ public class DeviceMessageManager {
                     if(handlers.containsKey(messageText)) {
                         try {
                             HashMap<String, String> params = message.getParams();
-                            handlers.get(messageText).handleData(params);
+                            handlers.get(messageText).handleData(params, this);
                         } catch (MessageException e) {
                             e.printStackTrace();
                         }
