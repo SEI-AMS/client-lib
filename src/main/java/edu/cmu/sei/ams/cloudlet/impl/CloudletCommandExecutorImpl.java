@@ -397,9 +397,23 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
                 if (size <= 0)
                     return null;
                 byte[] resByteBuf = new byte[size];
-                responseContentInputStream.read(resByteBuf);
+
+                int totalBytesRead = 0;
+                while(true)
+                {
+                    int numBytesRead = responseContentInputStream.read(resByteBuf, totalBytesRead, size - totalBytesRead);
+                    log.info("Num bytes read: " + numBytesRead);
+                    totalBytesRead += numBytesRead;
+
+                    if(numBytesRead == -1)
+                        break;
+
+                    if(totalBytesRead == size)
+                        break;
+                }
                 responseContentInputStream.close();
 
+                log.info("Total bytes read: " + totalBytesRead);
                 log.info("Response size: " + size);
 
                 // Turn the buffer into a string, which should be straightforward since HTTP uses strings to communicate.

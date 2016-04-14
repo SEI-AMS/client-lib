@@ -120,7 +120,7 @@ public class AESEncrypter {
 
     public byte[] decrypt(String encrypted) throws EncryptionException {
         try {
-            //log.info("Encrypted string: " + encrypted);
+            //log.info("Encrypted string (" + encrypted.length() + "): " + encrypted);
             byte[] cryptedBytes = Base64.decodeBase64(encrypted.getBytes());
             log.info("Crypted bytes length: " + cryptedBytes.length);
 
@@ -140,6 +140,7 @@ public class AESEncrypter {
         }
         catch(Exception e)
         {
+            log.error("Error decrypting string (" + encrypted.length() + "): " + encrypted);
             throw new EncryptionException("Error decrypting information", e);
         }
     }
