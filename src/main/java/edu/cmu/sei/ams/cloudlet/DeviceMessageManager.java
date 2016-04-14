@@ -66,17 +66,16 @@ public class DeviceMessageManager implements ICurrentCloudlerHolder {
             try {
                 List<DeviceMessage> messages = currentCloudlet.getMessages(serviceId);
 
-                for (DeviceMessage message: messages) {
+                for (DeviceMessage message : messages) {
                     String messageText = message.getMessage();
-                    if(handlers.containsKey(messageText)) {
+                    if (handlers.containsKey(messageText)) {
                         try {
                             HashMap<String, String> params = message.getParams();
                             handlers.get(messageText).handleData(params, this);
                         } catch (MessageException e) {
                             e.printStackTrace();
                         }
-                    }
-                    else {
+                    } else {
                         //Log.w("DeviceMessageManager", "Unknown message type: " + messageText);
                     }
                 }
@@ -87,6 +86,9 @@ public class DeviceMessageManager implements ICurrentCloudlerHolder {
                 // This means the thread should stop.
                 stopped = true;
             } catch (CloudletException e) {
+                // TODO: improve error handling.
+                e.printStackTrace();
+            } catch (Exception e) {
                 // TODO: improve error handling.
                 e.printStackTrace();
             }
