@@ -156,6 +156,7 @@ public class CloudletCommandExecutorImpl implements CloudletCommandExecutor
                 break;
         }
         request.setURI(new URI(apiCommandUrl));
+        request.setHeader("X-Device-ID", this.deviceId);
 
         return request;
     }
