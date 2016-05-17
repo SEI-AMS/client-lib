@@ -45,6 +45,7 @@ import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,8 +69,7 @@ public class CloudletImpl implements Cloudlet
     private final CloudletCommandExecutor commandExecutor;
 
     public CloudletImpl(String name, InetAddress addr, int port, boolean encryptionEnabled,
-                        String deviceId, ICredentialsManager credentialsManager)
-    {
+                        String deviceId, ICredentialsManager credentialsManager) throws IOException {
         this.name = name;
         this.addr = addr;
         this.port = port;
@@ -80,6 +80,11 @@ public class CloudletImpl implements Cloudlet
         if(encryptionEnabled) {
             // Get the stored password for this cloudlet and enable encryption for it.
             String password = credentialsManager.getEncryptionPassword(name);
+            if(password.equals(""))
+            {
+                throw new IOException("Password is empty.");
+            }
+
             commandExecutor.enableEncryption(password);
         }
     }

@@ -1,17 +1,10 @@
+group 'edu.cmu.sei.ams.cloudlet'
+version '3.0.0'
+
 apply plugin: 'java'
 apply plugin: 'maven'
-apply plugin: 'signing'
 
 sourceCompatibility = 1.6
-
-def artifactId = projectDir.name
-group = 'edu.cmu.sei.ams.cloudlet'
-def groupId = group
-version = '3.0.0'
-
-wrapper {
-    gradleVersion = '2.3'
-}
 
 repositories {
     mavenLocal()
@@ -19,83 +12,10 @@ repositories {
 }
 
 dependencies {
-    compile (
-            'javax.jmdns:jmdns:3.4.1',
-            'org.slf4j:slf4j-api:1.7.6',
-            'org.slf4j:slf4j-ext:1.7.6',
-            'org.apache.httpcomponents:httpclient:4.3.3',
-            'org.json:json:20140107'
-    )
-    testCompile (
-            'junit:junit:4.11',
-            'org.apache.logging.log4j:log4j-slf4j-impl:2.0-rc1',
-            'org.apache.logging.log4j:log4j-core:2.0-rc1'
-    )
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
-signing {
-    required { gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
-}
-
-// NOTE: to test the library locally, "gradlew install" can be used. This requires maven to be installed locally, and a local .m2 repo to exist.
-uploadArchives {
-  repositories {
-    mavenDeployer {
-      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        authentication(userName: project.hasProperty('ossrhUsername')?ossrhUsername:'', password: project.hasProperty('ossrhPassword')?ossrhPassword:'')
-      }
-
-      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-        authentication(userName: project.hasProperty('ossrhUsername')?ossrhUsername:'', password: project.hasProperty('ossrhPassword')?ossrhPassword:'')
-      }
-
-      pom.project {
-        name 'Cloudlet Client Library'
-        packaging 'jar'
-        // optionally artifactId can be defined here 
-        description 'A library for communicating with cloudlets from a client device.'
-        url 'https://github.com/SEI-AMS/client-lib'
-
-        scm {
-          connection 'scm:git:git@github.com:SEI-AMS/client-lib.git'
-          developerConnection 'scm:git:git@github.com:SEI-AMS/client-lib.git'
-          url 'git@github.com:SEI-AMS/client-lib.git'
-        }
-
-        licenses {
-          license {
-            name 'KD-Cloudlet license'
-            url 'https://github.com/SEI-AMS/client-lib/blob/master/LICENSE'
-          }
-        }
-
-        developers {
-          developer {
-            name 'Sebastian Echeverria'
-            email 'secheverria@sei.cmu.edu'
-            organization 'Software Engineering Institute'
-            organizationUrl 'https://github.com/SEI-AMS'
-          }
-        }
-      }
-    }
-  }
+    compile 'javax.jmdns:jmdns:3.4.1'
+    compile 'org.slf4j:slf4j-api:1.7.6'
+    compile 'org.slf4j:slf4j-ext:1.7.6'
+    compile 'org.apache.httpcomponents:httpclient:4.3.3'
+    compile 'org.json:json:20140107'
+    testCompile group: 'junit', name: 'junit', version: '4.11'
 }
