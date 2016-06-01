@@ -35,11 +35,15 @@ import java.util.List;
 import edu.cmu.sei.ams.cloudlet.Cloudlet;
 import edu.cmu.sei.ams.cloudlet.CloudletException;
 import edu.cmu.sei.ams.cloudlet.DeviceMessage;
+import edu.cmu.sei.ams.cloudlet.impl.AppImpl;
+import org.slf4j.ext.XLogger;
+import org.slf4j.ext.XLoggerFactory;
 
 /**
  * Created by Sebastian on 2016-03-28.
  */
 public class DeviceMessageManager implements ICurrentCloudlerHolder {
+    private static final XLogger log = XLoggerFactory.getXLogger(AppImpl.class);
     private HashMap<String, IDeviceMessageHandler> handlers = new HashMap<String, IDeviceMessageHandler>();
 
     private boolean stopped = false;
@@ -68,8 +72,10 @@ public class DeviceMessageManager implements ICurrentCloudlerHolder {
 
                 for (DeviceMessage message : messages) {
                     String messageText = message.getMessage();
+                    log.debug("Got message: " + messageText);
                     if (handlers.containsKey(messageText)) {
                         try {
+                            log.debug("Found handler for message: " + messageText);
                             HashMap<String, String> params = message.getParams();
                             handlers.get(messageText).handleData(params, this);
                         } catch (MessageException e) {
