@@ -53,6 +53,7 @@ public class DeviceMessageManager implements ICurrentCloudlerHolder {
     }
 
     private Cloudlet currentCloudlet;
+    private final Object currentCloudletLock = new Object();
 
     public void registerHandler(String message, IDeviceMessageHandler newHandler) {
         handlers.put(message, newHandler);
@@ -60,7 +61,9 @@ public class DeviceMessageManager implements ICurrentCloudlerHolder {
 
     @Override
     public void setCurrentCloudlet(Cloudlet cloudlet) {
-        currentCloudlet = cloudlet;
+        synchronized (currentCloudletLock) {
+            currentCloudlet = cloudlet;
+        }
     }
 
     public void execute(Cloudlet cloudlet, String serviceId) {
@@ -68,7 +71,10 @@ public class DeviceMessageManager implements ICurrentCloudlerHolder {
 
         while(!stopped) {
             try {
-                List<DeviceMessage> messages = currentCloudlet.getMessages(serviceId);
+                List<DeviceMessage> messages;
+                synchronized (currentCloudletLock) {
+                    messages = currentCloudlet.getMessages(serviceId);
+                }
 
                 for (DeviceMessage message : messages) {
                     String messageText = message.getMessage();
