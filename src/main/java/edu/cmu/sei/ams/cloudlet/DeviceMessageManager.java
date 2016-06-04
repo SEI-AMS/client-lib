@@ -71,6 +71,9 @@ public class DeviceMessageManager implements ICurrentCloudlerHolder {
 
         while(!stopped) {
             try {
+                int pollTimeInMs = 10 * 1000;
+                Thread.sleep(pollTimeInMs);
+
                 List<DeviceMessage> messages;
                 synchronized (currentCloudletLock) {
                     messages = currentCloudlet.getMessages(serviceId);
@@ -88,20 +91,15 @@ public class DeviceMessageManager implements ICurrentCloudlerHolder {
                             e.printStackTrace();
                         }
                     } else {
-                        //Log.w("DeviceMessageManager", "Unknown message type: " + messageText);
+                        log.warn("Unknown message type: " + messageText);
                     }
                 }
-
-                int pollTimeInMs = 10 * 1000;
-                Thread.sleep(pollTimeInMs);
             } catch (InterruptedException e) {
                 // This means the thread should stop.
                 stopped = true;
-            } catch (CloudletException e) {
-                // TODO: improve error handling.
-                e.printStackTrace();
+                log.debug("Stopped polling for messages.");
             } catch (Exception e) {
-                // TODO: improve error handling.
+                log.error("Exception while polling for messages: " + e.getMessage());
                 e.printStackTrace();
             }
         }
