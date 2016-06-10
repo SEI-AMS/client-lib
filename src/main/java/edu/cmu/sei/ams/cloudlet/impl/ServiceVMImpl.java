@@ -36,6 +36,8 @@ import org.json.JSONObject;
 import org.slf4j.ext.XLogger;
 import org.slf4j.ext.XLoggerFactory;
 
+import java.net.InetAddress;
+
 import static edu.cmu.sei.ams.cloudlet.impl.CloudletUtilities.*;
 
 /**
@@ -47,6 +49,7 @@ public class ServiceVMImpl implements ServiceVM
 {
     private static final XLogger log = XLoggerFactory.getXLogger(ServiceVMImpl.class);
     private String instanceId;
+    private InetAddress address;
     private String fqDomainName;
     private int port;
     private JSONObject json;
@@ -54,15 +57,26 @@ public class ServiceVMImpl implements ServiceVM
     private String serviceId;
     private final Cloudlet cloudlet;
 
-    ServiceVMImpl(Cloudlet cloudlet, String serviceId, JSONObject obj)
+    ServiceVMImpl(Cloudlet cloudlet, String serviceId, JSONObject jsonSvmInfo)
     {
-        log.entry(cloudlet, serviceId, obj);
+        log.entry(cloudlet, serviceId, jsonSvmInfo);
+
         this.cloudlet = cloudlet;
-        this.instanceId = getSafeString("_id", obj);
-        this.fqDomainName = getSafeString("fqdn", obj);
-        this.port = getSafeInt("port", obj);
+        this.json = jsonSvmInfo;
+
+        this.instanceId = getSafeString("_id", jsonSvmInfo);
+        this.port = getSafeInt("port", jsonSvmInfo);
         this.serviceId = serviceId;
-        this.json = obj;
+
+        // If DNS is disabled on the cloudlet, fqDomainName will be null.
+        this.fqDomainName = getSafeString("fqdn", jsonSvmInfo);
+
+        // We only want to store the address if there is no domain.... otherwise, we want to use the domain name.
+        if(this.fqDomainName == null)
+            this.address = getSafeInetAddress("ip_address", jsonSvmInfo);
+        else
+            this.address = null;
+
         log.exit();
     }
 
@@ -118,6 +132,13 @@ public class ServiceVMImpl implements ServiceVM
     {
         return this.fqDomainName;
     }
+
+    /**
+     * {@inheritDoc}
+     * @return
+     */
+    @Override
+    public InetAddress getAddress() { return this.address;}
 
     /**
      * {@inheritDoc}

@@ -172,8 +172,8 @@ public class CloudletImpl implements Cloudlet
         try
         {
             jsonStr = commandExecutor.executeCommand(cmd, this.getAddress().getHostAddress(), this.getPort());
-            JSONObject obj = new JSONObject(jsonStr);
-            serviceVM = new ServiceVMImpl(this, serviceId, obj);
+            JSONObject jsonSvmInfo = new JSONObject(jsonStr);
+            serviceVM = new ServiceVMImpl(this, serviceId, jsonSvmInfo);
         }
         catch (JSONException e)
         {
@@ -245,7 +245,6 @@ public class CloudletImpl implements Cloudlet
         {
             log.error("Error getting services array from response!", e);
         }
-
 
         servicesCache = Collections.unmodifiableList(_ret);
 

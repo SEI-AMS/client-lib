@@ -51,7 +51,7 @@ public interface ServiceVM
     public String getInstanceId();
 
     /**
-     * Returns the address that this service is running on
+     * Returns a FQDN that can be resolved to the IP this VM is running in.
      * @return
      */
     public String getDomainName();
@@ -67,4 +67,11 @@ public interface ServiceVM
      * @return
      */
     public boolean stopVm() throws CloudletException;
+
+    /**
+     * Returns the address that this service is running on
+     * If Domain Name is set, this will return null.
+     * @return
+     */
+    public InetAddress getAddress();
 }
