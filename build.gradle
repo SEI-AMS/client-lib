@@ -2,7 +2,7 @@ group 'edu.cmu.sei.ams.cloudlet'
 version '3.0.0'
 
 apply plugin: 'java'
-apply plugin: 'maven'
+apply from: 'maven-push.gradle'
 
 sourceCompatibility = 1.6
 
